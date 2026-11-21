@@ -112,9 +112,17 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 
+<p id="connectionStatus">Checking connection...</p>
+
 <script>
+  const status = document.getElementById("connectionStatus");
+
   if (window.supabaseClient) {
-    console.log("Supabase Connected");
+    status.innerText = "Supabase Connected Successfully";
+    status.style.color = "green";
+  } else {
+    status.innerText = "Connection Failed. Please check configuration.";
+    status.style.color = "red";
   }
 </script>
 
