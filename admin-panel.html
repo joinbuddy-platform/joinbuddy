@@ -1,1 +1,162 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JoinBuddy Admin Panel</title>
+<style>
+body{font-family:Arial;background:#f1f5f9;margin:0;color:#222}
+header{background:#172554;color:white;padding:22px;text-align:center}
+main{max-width:500px;margin:30px auto;background:white;padding:22px;border-radius:12px}
+input{width:100%;box-sizing:border-box;padding:13px;margin:8px 0 16px;border:1px solid #ccc;border-radius:7px;font-size:16px}
+button{width:100%;padding:13px;background:#172554;color:white;border:0;border-radius:7px;font-size:16px;margin:5px 0}
+#dashboard{display:none}
+#message{overflow-wrap:anywhere;margin-top:15px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>JoinBuddy</h1>
+<p>Admin Control Panel</p>
+</header>
+
+<main>
+<section id="loginSection">
+<h2>Admin Login</h2>
+<form id="loginForm">
+<label>Admin Email</label>
+<input type="email" id="adminEmail" required>
+<label>Password</label>
+<input type="password" id="adminPassword" required>
+<button type="submit">Login</button>
+</form>
+</section>
+
+<section id="dashboard">
+<h2>Welcome Admin</h2>
+<h3>Create New Partner</h3>
+
+<form id="partnerForm">
+<label>Partner Full Name</label>
+<input type="text" id="fullName" required>
+
+<label>Partner ID</label>
+<input type="text" id="partnerId" placeholder="JB1001" required>
+
+<label>Partner Password</label>
+<input type="password" id="partnerPassword" minlength="8" required>
+
+<button type="submit">Create Partner Account</button>
+</form>
+
+<button id="logoutButton">Logout</button>
+</section>
+
+<p id="message"></p>
+</main>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+const client = window.supabaseClient;
+const message = document.getElementById("message");
+
+if (!client) {
+  message.style.color = "red";
+  message.innerText = "Supabase connection failed.";
+  document.getElementById("loginForm").querySelector("button").disabled = true;
+}
+
+function showDashboard() {
+  document.getElementById("loginSection").style.display = "none";
+  document.getElementById("dashboard").style.display = "block";
+}
+
+function showLogin() {
+  document.getElementById("loginSection").style.display = "block";
+  document.getElementById("dashboard").style.display = "none";
+}
+
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  message.style.color = "#333";
+  message.innerText = "Checking admin account...";
+
+  const email = document.getElementById("adminEmail").value.trim();
+  const password = document.getElementById("adminPassword").value;
+
+  const { data, error } = await client.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    message.style.color = "red";
+    message.innerText = "Login failed: " + error.message;
+    return;
+  }
+
+  const { data: profile, error: profileError } = await client
+    .from("partner_profiles")
+    .select("role,status")
+    .eq("id", data.user.id)
+    .single();
+
+  if (profileError || !profile || profile.role !== "admin" || profile.status !== "approved") {
+    await client.auth.signOut();
+    message.style.color = "red";
+    message.innerText = "This account is not an approved Admin.";
+    return;
+  }
+
+  message.style.color = "green";
+  message.innerText = "Admin login successful.";
+  showDashboard();
+});
+
+document.getElementById("partnerForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const full_name = document.getElementById("fullName").value.trim();
+  const partner_id = document.getElementById("partnerId").value.trim().toUpperCase();
+  const password = document.getElementById("partnerPassword").value;
+
+  message.style.color = "#333";
+  message.innerText = "Creating Partner Account...";
+
+  const { data, error } = await client.functions.invoke("create-partner", {
+    body: { full_name, partner_id, password }
+  });
+
+  if (error) {
+    message.style.color = "red";
+    message.innerText = "Error: " + error.message;
+    return;
+  }
+
+  if (!data || !data.success) {
+    message.style.color = "red";
+    message.innerText = "Error: " + (data?.error || "Partner could not be created.");
+    return;
+  }
+
+  message.style.color = "green";
+  message.innerText = "Partner created successfully! Partner ID: " + data.partner_id;
+
+  document.getElementById("partnerForm").reset();
+});
+
+document.getElementById("logoutButton").addEventListener("click", async () => {
+  await client.auth.signOut();
+  showLogin();
+  message.style.color = "#333";
+  message.innerText = "Logged out.";
+});
+</script>
+
+</body>
+</html>
+
