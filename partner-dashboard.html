@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JoinBuddy Partner Dashboard</title>
+<style>
+body{font-family:Arial;background:#f2f5fa;margin:0;color:#222}
+header{background:#173b70;color:white;padding:20px}
+header h2{margin:0}
+.container{padding:20px;max-width:700px;margin:auto}
+.welcome{background:white;padding:20px;border-radius:12px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.card{background:white;padding:22px 12px;border-radius:12px;text-align:center;box-shadow:0 2px 8px #0001}
+.card h3{color:#173b70;margin:8px 0}
+.card p{font-size:13px;color:#666}
+button{background:#173b70;color:white;border:0;padding:12px 20px;border-radius:7px;cursor:pointer}
+.logout{background:#c62828;margin-top:20px}
+@media(max-width:400px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+<h2>JoinBuddy</h2>
+<p>Partner Dashboard</p>
+</header>
+
+<div class="container">
+<div class="welcome">
+<h2>Welcome, <span id="partnerName">Partner</span></h2>
+<p>Partner ID: <strong id="partnerId">Loading...</strong></p>
+<p>Work Together. Grow Together.</p>
+</div>
+
+<div class="grid">
+<div class="card">
+<h3>📋 Lead लेना</h3>
+<p>अपने Assigned Leads देखें</p>
+</div>
+
+<div class="card">
+<h3>📤 Final Report</h3>
+<p>अपने Work की Report दें</p>
+</div>
+
+<div class="card">
+<h3>💰 My Earnings</h3>
+<p>अपनी कमाई देखें</p>
+</div>
+
+<div class="card">
+<h3>🎧 Partner Support</h3>
+<p>Help और Support प्राप्त करें</p>
+</div>
+</div>
+
+<button class="logout" onclick="logout()">Logout</button>
+<p id="message"></p>
+</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+async function loadDashboard(){
+  const client = window.supabaseClient;
+  const {data:{user},error} = await client.auth.getUser();
+
+  if(error || !user){
+    window.location.href="partner-login.html";
+    return;
+  }
+
+  const {data:profile,error:profileError} = await client
+    .from("partner_profiles")
+    .select("partner_id,full_name,role,status")
+    .eq("id",user.id)
+    .single();
+
+  if(profileError || !profile ||
+     profile.role!=="partner" || profile.status!=="approved"){
+    await client.auth.signOut();
+    window.location.href="partner-login.html";
+    return;
+  }
+
+  document.getElementById("partnerName").textContent=profile.full_name;
+  document.getElementById("partnerId").textContent=profile.partner_id;
+}
+
+async function logout(){
+  await window.supabaseClient.auth.signOut();
+  window.location.href="partner-login.html";
+}
+
+loadDashboard();
+</script>
+</body>
+</html>
