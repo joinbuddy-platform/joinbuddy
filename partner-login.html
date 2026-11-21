@@ -1,130 +1,125 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Partner Login - JoinBuddy</title>
+  <title>JoinBuddy Partner Login</title>
   <style>
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: #f5f7fb;
-      color: #222;
-    }
-    header {
-      background: #172554;
-      color: white;
-      padding: 25px 15px;
-      text-align: center;
-    }
-    nav {
-      background: white;
-      padding: 12px;
-      text-align: center;
-    }
-    nav a {
-      margin: 7px;
-      color: #172554;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    main {
-      max-width: 420px;
-      margin: 35px auto;
+      background: #f2f5fa;
+      margin: 0;
       padding: 25px;
+    }
+    .login-box {
+      max-width: 380px;
+      margin: 55px auto;
       background: white;
+      padding: 25px;
       border-radius: 12px;
+      box-shadow: 0 3px 15px #0002;
     }
-    input {
+    h2 { text-align: center; color: #173b70; }
+    input, button {
       width: 100%;
+      padding: 13px;
+      margin-top: 14px;
       box-sizing: border-box;
-      padding: 13px;
-      margin: 8px 0 16px;
-      border: 1px solid #cbd5e1;
-      border-radius: 7px;
+      border-radius: 6px;
       font-size: 16px;
     }
+    input { border: 1px solid #ccc; }
     button {
-      width: 100%;
-      padding: 13px;
-      background: #172554;
+      background: #173b70;
       color: white;
-      border: none;
-      border-radius: 7px;
-      font-size: 16px;
+      border: 0;
+      cursor: pointer;
     }
-    footer {
-      text-align: center;
-      padding: 20px;
-      background: #172554;
-      color: white;
-      margin-top: 40px;
-    }
+    #message { margin-top: 15px; text-align: center; }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>Partner Login</h1>
-  <p>JoinBuddy - Work Together. Grow Together.</p>
-</header>
-
-<nav>
-  <a href="index.html">Home</a>
-  <a href="about.html">About</a>
-  <a href="contact.html">Contact</a>
-  <a href="partner-registration.html">Register</a>
-</nav>
-
-<main>
-  <h2>Welcome Back!</h2>
-  <p>Login to your Partner Account.</p>
+<div class="login-box">
+  <h2>JoinBuddy Partner Login</h2>
+  <p>अपनी Partner ID और Password डालें।</p>
 
   <form id="loginForm">
-    <label for="partnerId">Partner ID</label>
-    <input type="text" id="partnerId"
-      placeholder="Example: JB1001" required>
+    <input id="partnerId" type="text"
+      placeholder="Partner ID (जैसे JB1001)" required>
 
-    <label for="password">Password</label>
-    <input type="password" id="password"
-      placeholder="Enter your password" required>
+    <input id="password" type="password"
+      placeholder="Password" required>
 
-    <button type="submit">Login</button>
+    <button id="loginButton" type="submit">Login</button>
   </form>
 
-  <p id="connectionStatus">Checking connection...</p>
-
-  <p style="text-align:center;">
-    New Partner?
-    <a href="partner-registration.html">Register Here</a>
-  </p>
-</main>
-
-<footer>
-  <p>© 2026 JoinBuddy. All Rights Reserved.</p>
-</footer>
+  <p id="message"></p>
+</div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 
 <script>
-  const status = document.getElementById("connectionStatus");
+const client = window.supabaseClient;
 
-  if (window.supabaseClient) {
-    status.innerText = "Supabase Connected Successfully";
-    status.style.color = "green";
-  } else {
-    status.innerText = "Connection Failed";
-    status.style.color = "red";
+document.getElementById("loginForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const partnerId = document.getElementById("partnerId")
+    .value.trim().toUpperCase();
+  const password = document.getElementById("password").value;
+  const message = document.getElementById("message");
+  const button = document.getElementById("loginButton");
+
+  if (!/^JB[0-9]{3,10}$/.test(partnerId)) {
+    message.textContent = "सही Partner ID डालें। उदाहरण: JB1001";
+    message.style.color = "red";
+    return;
   }
 
-  document.getElementById("loginForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-    alert("Login system setup is in progress.");
-  });
+  button.disabled = true;
+  button.textContent = "Please wait...";
+  message.textContent = "";
+
+  try {
+    const internalEmail =
+      partnerId.toLowerCase() + "@partners.joinbuddy.invalid";
+
+    const { data, error } = await client.auth.signInWithPassword({
+      email: internalEmail,
+      password: password
+    });
+
+    if (error) throw error;
+
+    const { data: profile, error: profileError } = await client
+      .from("partner_profiles")
+      .select("partner_id, role, status, full_name")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profileError || !profile ||
+        profile.partner_id !== partnerId ||
+        profile.role !== "partner" ||
+        profile.status !== "approved") {
+      await client.auth.signOut();
+      throw new Error("Partner account approved नहीं है या जानकारी गलत है।");
+    }
+
+    message.style.color = "green";
+    message.textContent = "Login Successful! Welcome " + profile.full_name;
+
+  } catch (error) {
+    message.style.color = "red";
+    message.textContent = error.message || "Login failed.";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Login";
+  }
+});
 </script>
 
 </body>
 </html>
-
