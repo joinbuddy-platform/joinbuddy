@@ -11,7 +11,6 @@
       font-family: Arial, sans-serif;
       background: #f5f7fb;
       color: #222;
-      line-height: 1.7;
     }
     header {
       background: #172554;
@@ -36,7 +35,6 @@
       padding: 25px;
       background: white;
       border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     }
     input {
       width: 100%;
@@ -55,7 +53,6 @@
       border: none;
       border-radius: 7px;
       font-size: 16px;
-      font-weight: bold;
     }
     footer {
       text-align: center;
@@ -86,16 +83,21 @@
 
   <form id="loginForm">
     <label for="partnerId">Partner ID</label>
-    <input type="text" id="partnerId" placeholder="Example: JB1001" required>
+    <input type="text" id="partnerId"
+      placeholder="Example: JB1001" required>
 
     <label for="password">Password</label>
-    <input type="password" id="password" placeholder="Enter your password" required>
+    <input type="password" id="password"
+      placeholder="Enter your password" required>
 
     <button type="submit">Login</button>
   </form>
 
+  <p id="connectionStatus">Checking connection...</p>
+
   <p style="text-align:center;">
-    New Partner? <a href="partner-registration.html">Register Here</a>
+    New Partner?
+    <a href="partner-registration.html">Register Here</a>
   </p>
 </main>
 
@@ -103,16 +105,8 @@
   <p>© 2026 JoinBuddy. All Rights Reserved.</p>
 </footer>
 
-<script>
-  document.getElementById("loginForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-    alert("Login system will be connected to the secure database in the next steps.");
-  });
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
-
-<p id="connectionStatus">Checking connection...</p>
 
 <script>
   const status = document.getElementById("connectionStatus");
@@ -121,11 +115,16 @@
     status.innerText = "Supabase Connected Successfully";
     status.style.color = "green";
   } else {
-    status.innerText = "Connection Failed. Please check configuration.";
+    status.innerText = "Connection Failed";
     status.style.color = "red";
   }
-</script>
 
+  document.getElementById("loginForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    alert("Login system setup is in progress.");
+  });
+</script>
 
 </body>
 </html>
+
