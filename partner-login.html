@@ -108,7 +108,16 @@
     event.preventDefault();
     alert("Login system will be connected to the secure database in the next steps.");
   });
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+  if (window.supabaseClient) {
+    console.log("Supabase Connected");
+  }
 </script>
+
 
 </body>
 </html>
