@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Leads - JoinBuddy</title>
+<style>
+body{font-family:Arial;background:#f2f5fa;margin:0;color:#222}
+header{background:#173b70;color:white;padding:18px}
+.container{max-width:700px;margin:auto;padding:18px}
+.card{background:white;padding:18px;margin:14px 0;border-radius:10px;box-shadow:0 2px 8px #0001}
+button{background:#173b70;color:white;border:0;padding:11px 18px;border-radius:6px;cursor:pointer}
+.back{margin-top:15px}
+.error{color:#c62828}
+.muted{color:#666;font-size:14px}
+</style>
+</head>
+<body>
+
+<header>
+<h2>JoinBuddy - My Leads</h2>
+<p>आपकी Assigned Leads</p>
+</header>
+
+<div class="container">
+<h3 id="welcome">Loading...</h3>
+<div id="leads">Leads लोड हो रही हैं...</div>
+<button class="back" onclick="location.href='partner-dashboard.html'">Back to Dashboard</button>
+</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+async function loadLeads(){
+  const client=window.supabaseClient;
+  const leadsBox=document.getElementById("leads");
+
+  const {data:{user},error:authError}=await client.auth.getUser();
+
+  if(authError || !user){
+    location.href="partner-login.html";
+    return;
+  }
+
+  const {data:profile,error:profileError}=await client
+    .from("partner_profiles")
+    .select("partner_id,full_name,role,status")
+    .eq("id",user.id)
+    .single();
+
+  if(profileError || !profile ||
+     profile.role!=="partner" || profile.status!=="approved"){
+    await client.auth.signOut();
+    location.href="partner-login.html";
+    return;
+  }
+
+  document.getElementById("welcome").textContent=
+    "Welcome "+profile.full_name+" ("+profile.partner_id+")";
+
+  const {data:assignments,error}=await client
+    .from("lead_assignments")
+    .select("id,status,leads(lead_name,phone,email,city,source,notes)")
+    .eq("partner_user_id",user.id)
+    .order("id",{ascending:false});
+
+  if(error){
+    leadsBox.innerHTML='<p class="error">Error: '+escapeHTML(error.message)+'</p>';
+    return;
+  }
+
+  if(!assignments || assignments.length===0){
+    leadsBox.innerHTML='<div class="card">अभी आपको कोई Lead Assign नहीं हुई है।</div>';
+    return;
+  }
+
+  leadsBox.innerHTML="";
+
+  assignments.forEach(item=>{
+    const lead=item.leads;
+    if(!lead)return;
+
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`
+      <h3>${escapeHTML(lead.lead_name || "Name not available")}</h3>
+      <p><b>Phone:</b> ${escapeHTML(lead.phone || "-")}</p>
+      <p><b>Email:</b> ${escapeHTML(lead.email || "-")}</p>
+      <p><b>City:</b> ${escapeHTML(lead.city || "-")}</p>
+      <p><b>Source:</b> ${escapeHTML(lead.source || "-")}</p>
+      <p><b>Notes:</b> ${escapeHTML(lead.notes || "-")}</p>
+      <p class="muted"><b>Work Status:</b> ${escapeHTML(item.status || "assigned")}</p>
+    `;
+    leadsBox.appendChild(card);
+  });
+}
+
+function escapeHTML(value){
+  return String(value).replace(/[&<>"']/g,function(char){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char];
+  });
+}
+
+loadLeads().catch(error=>{
+  document.getElementById("leads").textContent="Error: "+error.message;
+});
+</script>
+</body>
+</html>
+
