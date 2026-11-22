@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JoinBuddy Admin Leads</title>
+<style>
+body{font-family:Arial;background:#f2f5fa;margin:0;color:#222}
+header{background:#173b70;color:white;padding:18px}
+.container{max-width:750px;margin:auto;padding:18px}
+.card{background:white;padding:20px;margin:16px 0;border-radius:10px;box-shadow:0 2px 8px #0001}
+input,select{width:100%;padding:12px;margin:8px 0 14px;box-sizing:border-box;border:1px solid #ccc;border-radius:6px}
+button{background:#173b70;color:white;border:0;padding:12px 18px;border-radius:6px;cursor:pointer}
+button:disabled{opacity:.5}
+.message{margin:12px 0}
+.lead{border-bottom:1px solid #ddd;padding:12px 0}
+</style>
+</head>
+<body>
+
+<header>
+<h2>JoinBuddy Admin</h2>
+<p>Lead Management</p>
+</header>
+
+<div class="container">
+<div class="card">
+<h3>➕ Add New Lead</h3>
+
+<form id="leadForm">
+<label>Lead Name</label>
+<input id="leadName" required>
+
+<label>Phone Number</label>
+<input id="phone" type="tel" required>
+
+<label>Email (Optional)</label>
+<input id="email" type="email">
+
+<label>City</label>
+<input id="city">
+
+<label>Lead Source</label>
+<input id="source" placeholder="Example: WhatsApp">
+
+<label>Notes</label>
+<input id="notes">
+
+<button type="submit" id="addButton">Save Lead</button>
+</form>
+</div>
+
+<div class="card">
+<h3>📋 Assign Lead to Partner</h3>
+
+<label>Select Lead</label>
+<select id="leadSelect">
+<option value="">Loading Leads...</option>
+</select>
+
+<label>Select Approved Partner</label>
+<select id="partnerSelect">
+<option value="">Loading Partners...</option>
+</select>
+
+<button id="assignButton" onclick="assignLead()">Assign Lead</button>
+<p id="assignMessage" class="message"></p>
+</div>
+
+<div class="card">
+<h3>All Leads</h3>
+<div id="leadList">Loading...</div>
+</div>
+
+<button onclick="location.href='admin-panel.html'">Back to Admin Panel</button>
+</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+const client = window.supabaseClient;
+let adminUser = null;
+
+async function initialize(){
+  const {data:{user},error} = await client.auth.getUser();
+
+  if(error || !user){
+    location.href="admin-panel.html";
+    return;
+  }
+
+  const {data:profile,error:profileError} = await client
+    .from("partner_profiles")
+    .select("role,status")
+    .eq("id",user.id)
+    .single();
+
+  if(profileError || !profile ||
+     profile.role !== "admin" || profile.status !== "approved"){
+    alert("Admin access required");
+    location.href="admin-panel.html";
+    return;
+  }
+
+  adminUser = user;
+  await loadLeads();
+  await loadPartners();
+}
+
+document.getElementById("leadForm").addEventListener("submit",async function(e){
+  e.preventDefault();
+
+  const button=document.getElementById("addButton");
+  button.disabled=true;
+  button.textContent="Saving...";
+
+  const lead={
+    lead_name:document.getElementById("leadName").value.trim(),
+    phone:document.getElementById("phone").value.trim(),
+    email:document.getElementById("email").value.trim() || null,
+    city:document.getElementById("city").value.trim() || null,
+    source:document.getElementById("source").value.trim() || null,
+    notes:document.getElementById("notes").value.trim() || null
+  };
+
+  const {error}=await client.from("leads").insert(lead);
+
+  if(error){
+    alert("Lead Save Error: "+error.message);
+  }else{
+    alert("Lead Added Successfully!");
+    this.reset();
+    await loadLeads();
+  }
+
+  button.disabled=false;
+  button.textContent="Save Lead";
+});
+
+async function loadLeads(){
+  const box=document.getElementById("leadList");
+  const select=document.getElementById("leadSelect");
+
+  const {data,error}=await client
+    .from("leads")
+    .select("id,lead_name,phone,city,source")
+    .order("id",{ascending:false});
+
+  if(error){
+    box.textContent="Error: "+error.message;
+    select.innerHTML='<option value="">Could not load leads</option>';
+    return;
+  }
+
+  select.innerHTML='<option value="">Select Lead</option>';
+  box.innerHTML="";
+
+  if(!data || data.length===0){
+    box.textContent="No Leads Added Yet";
+    return;
+  }
+
+  data.forEach(lead=>{
+    const option=document.createElement("option");
+    option.value=lead.id;
+    option.textContent=lead.lead_name+" - "+lead.phone;
+    select.appendChild(option);
+
+    const item=document.createElement("div");
+    item.className="lead";
+    item.textContent=
+      lead.lead_name+" | "+lead.phone+" | "+(lead.city || "-");
+    box.appendChild(item);
+  });
+}
+
+async function loadPartners(){
+  const select=document.getElementById("partnerSelect");
+
+  const {data,error}=await client
+    .from("partner_profiles")
+    .select("id,partner_id,full_name")
+    .eq("role","partner")
+    .eq("status","approved")
+    .order("partner_id");
+
+  if(error){
+    select.innerHTML='<option value="">Error loading partners</option>';
+    alert("Partner Load Error: "+error.message);
+    return;
+  }
+
+  select.innerHTML='<option value="">Select Partner</option>';
+
+  (data || []).forEach(partner=>{
+    const option=document.createElement("option");
+    option.value=partner.id;
+    option.textContent=partner.partner_id+" - "+partner.full_name;
+    select.appendChild(option);
+  });
+}
+
+async function assignLead(){
+  const leadId=document.getElementById("leadSelect").value;
+  const partnerId=document.getElementById("partnerSelect").value;
+  const message=document.getElementById("assignMessage");
+  const button=document.getElementById("assignButton");
+
+  if(!leadId || !partnerId){
+    message.textContent="Please select Lead and Partner.";
+    return;
+  }
+
+  button.disabled=true;
+  message.textContent="Assigning...";
+
+  const {error}=await client.from("lead_assignments").insert({
+    lead_id:leadId,
+    partner_user_id:partnerId,
+    assigned_by:adminUser.id,
+    status:"assigned"
+  });
+
+  if(error){
+    message.textContent="Error: "+error.message;
+  }else{
+    message.textContent="Lead Assigned Successfully!";
+    document.getElementById("leadSelect").value="";
+    document.getElementById("partnerSelect").value="";
+  }
+
+  button.disabled=false;
+}
+
+initialize().catch(error=>{
+  alert("Error: "+error.message);
+});
+</script>
+</body>
+</html>
