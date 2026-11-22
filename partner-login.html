@@ -111,6 +111,10 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     message.style.color = "green";
     message.textContent = "Login Successful! Welcome " + profile.full_name;
 
+setTimeout(() => {
+  window.location.href = "partner-dashboard.html";
+}, 1000);
+
   } catch (error) {
     message.style.color = "red";
     message.textContent = error.message || "Login failed.";
