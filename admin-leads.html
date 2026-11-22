@@ -51,6 +51,26 @@ button:disabled{opacity:.5}
 </form>
 </div>
 
+  
+<div class="card">
+<h3>📂 Bulk Lead Upload (Excel / CSV)</h3>
+
+<p>Excel या CSV फाइल चुनें। पहली Row में Column Headings होने चाहिए।</p>
+
+<p class="muted">
+Required Columns: lead_name, phone<br>
+Optional: email, city, source, notes
+</p>
+
+<input type="file" id="bulkFile" accept=".xlsx,.xls,.csv">
+
+<button id="bulkUploadButton" onclick="uploadBulkLeads()">
+Upload All Leads
+</button>
+
+<p id="bulkMessage" class="message"></p>
+</div>
+
 <div class="card">
 <h3>📋 Assign Lead to Partner</h3>
 
@@ -139,6 +159,69 @@ document.getElementById("leadForm").addEventListener("submit",async function(e){
   button.disabled=false;
   button.textContent="Save Lead";
 });
+
+  
+async function uploadBulkLeads(){
+  const fileInput = document.getElementById("bulkFile");
+  const message = document.getElementById("bulkMessage");
+  const button = document.getElementById("bulkUploadButton");
+
+  const file = fileInput.files[0];
+
+  if(!file){
+    message.textContent = "पहले Excel या CSV फाइल चुनें।";
+    return;
+  }
+
+  button.disabled = true;
+  message.textContent = "File पढ़ी जा रही है...";
+
+  try {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, {type:"array"});
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+    const rows = XLSX.utils.sheet_to_json(sheet, {
+      defval:"",
+      raw:false
+    });
+
+    const leads = rows.map(row => {
+      const clean = {};
+      Object.keys(row).forEach(key => {
+        clean[key.trim().toLowerCase()] = row[key];
+      });
+
+      return {
+        lead_name: String(clean.lead_name || "").trim(),
+        phone: String(clean.phone || "").trim(),
+        email: String(clean.email || "").trim() || null,
+        city: String(clean.city || "").trim() || null,
+        source: String(clean.source || "").trim() || null,
+        notes: String(clean.notes || "").trim() || null
+      };
+    }).filter(lead => lead.lead_name && lead.phone);
+
+    if(leads.length === 0){
+      throw new Error("Valid Leads नहीं मिलीं। Column headings जाँचें।");
+    }
+
+    const {error} = await client.from("leads").insert(leads);
+
+    if(error) throw error;
+
+    message.textContent =
+      leads.length + " Leads Successfully Uploaded!";
+
+    fileInput.value = "";
+    await loadLeads();
+
+  } catch(error) {
+    message.textContent = "Upload Error: " + error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
 
 async function loadLeads(){
   const box=document.getElementById("leadList");
