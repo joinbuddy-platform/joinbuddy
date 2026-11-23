@@ -211,7 +211,12 @@ input{
     </div>
 
     <div class="stats">
-      <div class="stat-card">
+      <button type="button" class="stat-card partner-stat"
+onclick="location.href='admin-leads.html'">
+  <div class="stat-icon">☷</div>
+  <small>Total Leads ↗</small>
+  <h2 id="totalLeads">—</h2>
+      </button>
         <div class="stat-icon">☷</div>
         <small>Total Leads</small>
         <h2 id="totalLeads">—</h2>
@@ -261,17 +266,35 @@ input{
     <h2 class="section-title">More Management Tools</h2>
     <div class="future-grid">
       <div class="future-card">
-        <h3>📊 Reports</h3>
+        <div class="future-card"
+     onclick="location.href='admin-reports.html'"
+     style="cursor:pointer">
+  <h3>📊 Reports ↗</h3>
+  <small>Partner-wise Reports</small>
+  <p>View work reports</p>
+        </div>
         <small>Coming Soon</small>
         <p>Partner-wise work reports</p>
       </div>
       <div class="future-card">
-        <h3>💰 Earnings</h3>
+        <div class="future-card"
+     onclick="location.href='admin-earnings.html'"
+     style="cursor:pointer">
+  <h3>💰 Earnings ↗</h3>
+  <small>Earnings & Payouts</small>
+  <p>Manage partner payments</p>
+        </div>
         <small>Coming Soon</small>
         <p>Partner earnings and payouts</p>
       </div>
       <div class="future-card">
-        <h3>🎧 Support</h3>
+        <div class="future-card"
+     onclick="location.href='admin-support.html'"
+     style="cursor:pointer">
+  <h3>🎧 Support ↗</h3>
+  <small>Support Tickets</small>
+  <p>Manage partner requests</p>
+        </div>
         <small>Coming Soon</small>
         <p>Partner support requests</p>
       </div>
