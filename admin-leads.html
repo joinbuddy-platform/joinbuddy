@@ -5,106 +5,143 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoinBuddy Admin Leads</title>
+
 <style>
-body{font-family:Arial;background:#f2f5fa;margin:0;color:#222}
-header{background:#173b70;color:white;padding:18px}
-.container{max-width:750px;margin:auto;padding:18px}
-.card{background:white;padding:20px;margin:16px 0;border-radius:10px;box-shadow:0 2px 8px #0001}
-input,select{width:100%;padding:12px;margin:8px 0 14px;box-sizing:border-box;border:1px solid #ccc;border-radius:6px}
-button{background:#173b70;color:white;border:0;padding:12px 18px;border-radius:6px;cursor:pointer}
+*{box-sizing:border-box}
+body{
+  font-family:Arial,sans-serif;
+  background:#f2f5fa;
+  margin:0;
+  color:#222;
+}
+header{
+  background:#173b70;
+  color:white;
+  padding:18px;
+}
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:16px;
+}
+.card{
+  background:white;
+  padding:18px;
+  margin:16px 0;
+  border-radius:10px;
+  box-shadow:0 2px 8px #0001;
+}
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+}
+button{
+  background:#173b70;
+  color:white;
+  border:0;
+  padding:11px 17px;
+  border-radius:6px;
+  cursor:pointer;
+}
 button:disabled{opacity:.5}
-.message{margin:12px 0}
-.lead{border-bottom:1px solid #ddd;padding:12px 0}
+.stats{
+  font-size:22px;
+  font-weight:bold;
+  color:#173b70;
+}
+.table-wrap{overflow-x:auto}
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:850px;
+}
+th,td{
+  padding:12px;
+  border-bottom:1px solid #ddd;
+  text-align:left;
+  font-size:14px;
+}
+th{
+  background:#edf2fa;
+  color:#173b70;
+}
+.message{
+  padding:12px;
+  color:#555;
+}
+footer{
+  text-align:center;
+  padding:20px;
+}
 </style>
 </head>
+
 <body>
 
 <header>
-<h2>JoinBuddy Admin</h2>
-<p>Lead Management</p>
+  <h2>JoinBuddy Admin</h2>
+  <p>Google Sheet Lead Management</p>
 </header>
 
 <div class="container">
-<div class="card">
-<h3>➕ Add New Lead</h3>
 
-<form id="leadForm">
-<label>Lead Name</label>
-<input id="leadName" required>
+  <div class="card">
+    <div class="top">
+      <div>
+        <h3>📋 All Leads</h3>
+        <p>Google Sheet से Sync हुई सभी Leads</p>
+      </div>
+      <button id="refreshButton" onclick="loadLeads()">
+        Refresh Leads
+      </button>
+    </div>
 
-<label>Phone Number</label>
-<input id="phone" type="tel" required>
+    <p>Total Leads: <span class="stats" id="totalLeads">0</span></p>
+    <p id="message" class="message">Loading Leads...</p>
 
-<label>Email (Optional)</label>
-<input id="email" type="email">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Lead Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>City</th>
+            <th>Source</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="leadTable">
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-<label>City</label>
-<input id="city">
+  <footer>
+    <button onclick="location.href='admin-panel.html'">
+      Back to Admin Panel
+    </button>
+  </footer>
 
-<label>Lead Source</label>
-<input id="source" placeholder="Example: WhatsApp">
-
-<label>Notes</label>
-<input id="notes">
-
-<button type="submit" id="addButton">Save Lead</button>
-</form>
 </div>
 
-  
-<div class="card">
-<h3>📂 Bulk Lead Upload (Excel / CSV)</h3>
-
-<p>Excel या CSV फाइल चुनें। पहली Row में Column Headings होने चाहिए।</p>
-
-<p class="muted">
-Required Columns: lead_name, phone<br>
-Optional: email, city, source, notes
-</p>
-
-<input type="file" id="bulkFile" accept=".xlsx,.xls,.csv">
-
-<button id="bulkUploadButton" onclick="uploadBulkLeads()">
-Upload All Leads
-</button>
-
-<p id="bulkMessage" class="message"></p>
-</div>
-
-<div class="card">
-<h3>📋 Assign Lead to Partner</h3>
-
-<label>Select Lead</label>
-<select id="leadSelect">
-<option value="">Loading Leads...</option>
-</select>
-
-<label>Select Approved Partner</label>
-<select id="partnerSelect">
-<option value="">Loading Partners...</option>
-</select>
-
-<button id="assignButton" onclick="assignLead()">Assign Lead</button>
-<p id="assignMessage" class="message"></p>
-</div>
-
-<div class="card">
-<h3>All Leads</h3>
-<div id="leadList">Loading...</div>
-</div>
-
-<button onclick="location.href='admin-panel.html'">Back to Admin Panel</button>
-</div>
-
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 
 <script>
 const client = window.supabaseClient;
-let adminUser = null;
 
 async function initialize(){
+
+  if(!client){
+    document.getElementById("message").textContent =
+      "Supabase connection failed.";
+    return;
+  }
+
   const {data:{user},error} = await client.auth.getUser();
 
   if(error || !user){
@@ -119,208 +156,79 @@ async function initialize(){
     .single();
 
   if(profileError || !profile ||
-     profile.role !== "admin" || profile.status !== "approved"){
+     profile.role !== "admin" ||
+     profile.status !== "approved"){
+
     alert("Admin access required");
     location.href="admin-panel.html";
     return;
   }
 
-  adminUser = user;
   await loadLeads();
-  await loadPartners();
-}
-
-document.getElementById("leadForm").addEventListener("submit",async function(e){
-  e.preventDefault();
-
-  const button=document.getElementById("addButton");
-  button.disabled=true;
-  button.textContent="Saving...";
-
-  const lead={
-    lead_name:document.getElementById("leadName").value.trim(),
-    phone:document.getElementById("phone").value.trim(),
-    email:document.getElementById("email").value.trim() || null,
-    city:document.getElementById("city").value.trim() || null,
-    source:document.getElementById("source").value.trim() || null,
-    notes:document.getElementById("notes").value.trim() || null
-  };
-
-  const {error}=await client.from("leads").insert(lead);
-
-  if(error){
-    alert("Lead Save Error: "+error.message);
-  }else{
-    alert("Lead Added Successfully!");
-    this.reset();
-    await loadLeads();
-  }
-
-  button.disabled=false;
-  button.textContent="Save Lead";
-});
-
-  
-async function uploadBulkLeads(){
-  const fileInput = document.getElementById("bulkFile");
-  const message = document.getElementById("bulkMessage");
-  const button = document.getElementById("bulkUploadButton");
-
-  const file = fileInput.files[0];
-
-  if(!file){
-    message.textContent = "पहले Excel या CSV फाइल चुनें।";
-    return;
-  }
-
-  button.disabled = true;
-  message.textContent = "File पढ़ी जा रही है...";
-
-  try {
-    const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, {type:"array"});
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-    const rows = XLSX.utils.sheet_to_json(sheet, {
-      defval:"",
-      raw:false
-    });
-
-    const leads = rows.map(row => {
-      const clean = {};
-      Object.keys(row).forEach(key => {
-        clean[key.trim().toLowerCase()] = row[key];
-      });
-
-      return {
-        lead_name: String(clean.lead_name || "").trim(),
-        phone: String(clean.phone || "").trim(),
-        email: String(clean.email || "").trim() || null,
-        city: String(clean.city || "").trim() || null,
-        source: String(clean.source || "").trim() || null,
-        notes: String(clean.notes || "").trim() || null
-      };
-    }).filter(lead => lead.lead_name && lead.phone);
-
-    if(leads.length === 0){
-      throw new Error("Valid Leads नहीं मिलीं। Column headings जाँचें।");
-    }
-
-    const {error} = await client.from("leads").insert(leads);
-
-    if(error) throw error;
-
-    message.textContent =
-      leads.length + " Leads Successfully Uploaded!";
-
-    fileInput.value = "";
-    await loadLeads();
-
-  } catch(error) {
-    message.textContent = "Upload Error: " + error.message;
-  } finally {
-    button.disabled = false;
-  }
 }
 
 async function loadLeads(){
-  const box=document.getElementById("leadList");
-  const select=document.getElementById("leadSelect");
 
-  const {data,error}=await client
+  const button = document.getElementById("refreshButton");
+  const message = document.getElementById("message");
+  const table = document.getElementById("leadTable");
+
+  button.disabled = true;
+  message.textContent = "Loading Leads...";
+  table.innerHTML = "";
+
+  const {data,error} = await client
     .from("leads")
-    .select("id,lead_name,phone,city,source")
+    .select("id,lead_name,phone,email,city,source,notes")
     .order("id",{ascending:false});
 
   if(error){
-    box.textContent="Error: "+error.message;
-    select.innerHTML='<option value="">Could not load leads</option>';
+    message.textContent = "Error: " + error.message;
+    button.disabled = false;
     return;
   }
 
-  select.innerHTML='<option value="">Select Lead</option>';
-  box.innerHTML="";
+  document.getElementById("totalLeads").textContent =
+    data ? data.length : 0;
 
-  if(!data || data.length===0){
-    box.textContent="No Leads Added Yet";
+  if(!data || data.length === 0){
+    message.textContent = "No Leads Found.";
+    button.disabled = false;
     return;
   }
 
-  data.forEach(lead=>{
-    const option=document.createElement("option");
-    option.value=lead.id;
-    option.textContent=lead.lead_name+" - "+lead.phone;
-    select.appendChild(option);
+  message.textContent = "Leads Successfully Loaded.";
 
-    const item=document.createElement("div");
-    item.className="lead";
-    item.textContent=
-      lead.lead_name+" | "+lead.phone+" | "+(lead.city || "-");
-    box.appendChild(item);
-  });
-}
+  data.forEach(lead => {
 
-async function loadPartners(){
-  const select=document.getElementById("partnerSelect");
+    const row = document.createElement("tr");
 
-  const {data,error}=await client
-    .from("partner_profiles")
-    .select("id,partner_id,full_name")
-    .eq("role","partner")
-    .eq("status","approved")
-    .order("partner_id");
+    const fields = [
+      lead.lead_name,
+      lead.phone,
+      lead.email,
+      lead.city,
+      lead.source,
+      lead.notes
+    ];
 
-  if(error){
-    select.innerHTML='<option value="">Error loading partners</option>';
-    alert("Partner Load Error: "+error.message);
-    return;
-  }
+    fields.forEach(value => {
+      const cell = document.createElement("td");
+      cell.textContent = value || "-";
+      row.appendChild(cell);
+    });
 
-  select.innerHTML='<option value="">Select Partner</option>';
-
-  (data || []).forEach(partner=>{
-    const option=document.createElement("option");
-    option.value=partner.id;
-    option.textContent=partner.partner_id+" - "+partner.full_name;
-    select.appendChild(option);
-  });
-}
-
-async function assignLead(){
-  const leadId=document.getElementById("leadSelect").value;
-  const partnerId=document.getElementById("partnerSelect").value;
-  const message=document.getElementById("assignMessage");
-  const button=document.getElementById("assignButton");
-
-  if(!leadId || !partnerId){
-    message.textContent="Please select Lead and Partner.";
-    return;
-  }
-
-  button.disabled=true;
-  message.textContent="Assigning...";
-
-  const {error}=await client.from("lead_assignments").insert({
-    lead_id:leadId,
-    partner_user_id:partnerId,
-    assigned_by:adminUser.id,
-    status:"assigned"
+    table.appendChild(row);
   });
 
-  if(error){
-    message.textContent="Error: "+error.message;
-  }else{
-    message.textContent="Lead Assigned Successfully!";
-    document.getElementById("leadSelect").value="";
-    document.getElementById("partnerSelect").value="";
-  }
-
-  button.disabled=false;
+  button.disabled = false;
 }
 
-initialize().catch(error=>{
-  alert("Error: "+error.message);
+initialize().catch(error => {
+  document.getElementById("message").textContent =
+    "Error: " + error.message;
 });
 </script>
+
 </body>
 </html>
