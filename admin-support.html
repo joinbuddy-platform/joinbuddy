@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JoinBuddy - Support Tickets</title>
+<title>JoinBuddy - Support Management</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <style>
@@ -13,16 +13,26 @@ body{margin:0;font-family:Arial,sans-serif;background:#f4f5fb;color:#20243a}
 header{background:#171b3b;color:white;padding:20px}
 main{padding:20px;max-width:1100px;margin:auto}
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.card{background:white;padding:20px;border-radius:14px;box-shadow:0 3px 15px #00000010;margin-top:18px}
-button{background:#5546d9;color:white;border:0;padding:11px 18px;border-radius:8px;cursor:pointer}
-.table-wrap{overflow-x:auto;margin-top:15px}
-table{width:100%;border-collapse:collapse;min-width:600px}
-th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
-th{background:#f1f0ff}
-#message{color:#666;padding:20px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:15px}
+.stat,.card{background:white;padding:18px;border-radius:14px;box-shadow:0 3px 15px #00000010;margin-top:18px}
+.stat{margin-top:0;background:#f1f0ff}
+.stat small{color:#666}
+.stat h2{margin:8px 0 0;font-size:25px}
+button{background:#5546d9;color:white;border:0;padding:10px 15px;border-radius:8px;cursor:pointer}
+select,textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;font:inherit}
+textarea{min-height:90px;resize:vertical}
+.ticket{border:1px solid #eee;border-radius:12px;padding:16px;margin-top:15px}
+.ticket h3{margin:0 0 8px}
+.meta{font-size:13px;color:#666;margin:7px 0}
+.reply{margin-top:14px}
+.reply button{margin-top:9px}
+.status-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.status-row select{max-width:220px}
+#message{color:#666;padding:18px 0}
 </style>
 </head>
 <body>
+
 <header>
 <h2>JoinBuddy Support Tickets</h2>
 <p>Partner Support Management</p>
@@ -30,19 +40,33 @@ th{background:#f1f0ff}
 
 <main>
 <div class="top">
-<h2>Support Management</h2>
+<h2>Support Dashboard</h2>
 <button onclick="loadTickets()">Refresh Tickets</button>
 </div>
 
-<div class="card">
-<h3>All Support Tickets</h3>
-<div id="message">Loading tickets...</div>
-<div class="table-wrap">
-<table id="ticketTable" style="display:none">
-<thead id="tableHead"></thead>
-<tbody id="tableBody"></tbody>
-</table>
+<div class="stats">
+<div class="stat">
+<small>Total Tickets</small>
+<h2 id="totalTickets">0</h2>
 </div>
+<div class="stat">
+<small>Open</small>
+<h2 id="openTickets">0</h2>
+</div>
+<div class="stat">
+<small>In Progress</small>
+<h2 id="progressTickets">0</h2>
+</div>
+<div class="stat">
+<small>Resolved</small>
+<h2 id="resolvedTickets">0</h2>
+</div>
+</div>
+
+<div class="card">
+<h3>All Partner Support Requests</h3>
+<div id="message">Loading tickets...</div>
+<div id="ticketList"></div>
 </div>
 
 <button style="margin-top:20px" onclick="location.href='admin-panel.html'">
@@ -52,6 +76,8 @@ Back to Dashboard
 
 <script>
 const client = window.supabaseClient;
+let ticketData = [];
+let partnerNames = {};
 
 async function initialize(){
   if(!client){
@@ -86,54 +112,171 @@ async function initialize(){
 
 async function loadTickets(){
   const message = document.getElementById("message");
-  const table = document.getElementById("ticketTable");
+  const list = document.getElementById("ticketList");
   message.textContent = "Loading tickets...";
-  table.style.display = "none";
+  list.replaceChildren();
 
-  const {data,error} = await client
-    .from("support_tickets")
-    .select("*")
-    .limit(500);
+  const [ticketsResult,partnersResult] = await Promise.all([
+    client.from("support_tickets").select("*").limit(500),
+    client.from("partner_profiles")
+      .select("id,full_name")
+      .eq("role","partner")
+  ]);
 
-  if(error){
-    message.textContent = "Tickets load nahi ho paaye: " + error.message;
+  if(ticketsResult.error){
+    message.textContent =
+      "Tickets error: " + ticketsResult.error.message;
     return;
   }
 
-  if(!data || data.length === 0){
+  if(partnersResult.error){
+    message.textContent =
+      "Partners error: " + partnersResult.error.message;
+    return;
+  }
+
+  ticketData = ticketsResult.data || [];
+  partnerNames = {};
+
+  (partnersResult.data || []).forEach(p=>{
+    partnerNames[p.id] = p.full_name || "Unnamed Partner";
+  });
+
+  let open = 0, progress = 0, resolved = 0;
+
+  ticketData.forEach(ticket=>{
+    const status = String(ticket.status || "open").toLowerCase();
+    if(status === "resolved") resolved++;
+    else if(status === "in progress") progress++;
+    else open++;
+  });
+
+  document.getElementById("totalTickets").textContent = ticketData.length;
+  document.getElementById("openTickets").textContent = open;
+  document.getElementById("progressTickets").textContent = progress;
+  document.getElementById("resolvedTickets").textContent = resolved;
+
+  if(ticketData.length === 0){
     message.textContent = "Abhi koi support ticket available nahi hai.";
     return;
   }
 
-  const columns = Object.keys(data[0]);
-  const head = document.getElementById("tableHead");
-  const body = document.getElementById("tableBody");
+  message.textContent = "Total Tickets: " + ticketData.length;
 
-  head.replaceChildren();
-  body.replaceChildren();
+  ticketData.forEach(ticket=>{
+    const card = document.createElement("div");
+    card.className = "ticket";
 
-  const headerRow = document.createElement("tr");
-  columns.forEach(col=>{
-    const th = document.createElement("th");
-    th.textContent = col.replaceAll("_"," ").toUpperCase();
-    headerRow.appendChild(th);
-  });
-  head.appendChild(headerRow);
+    const title = document.createElement("h3");
+    title.textContent = ticket.subject || "No Subject";
+    card.appendChild(title);
 
-  data.forEach(item=>{
-    const tr = document.createElement("tr");
-    columns.forEach(col=>{
-      const td = document.createElement("td");
-      const value = item[col];
-      td.textContent = value == null ? "-" :
-        typeof value === "object" ? JSON.stringify(value) : String(value);
-      tr.appendChild(td);
+    const partner = document.createElement("div");
+    partner.className = "meta";
+    partner.textContent = "Partner: " +
+      (partnerNames[ticket.partner_user_id] || "Unknown Partner");
+    card.appendChild(partner);
+
+    const date = document.createElement("div");
+    date.className = "meta";
+    date.textContent = "Created: " +
+      (ticket.created_at ? new Date(ticket.created_at).toLocaleString("en-IN") : "-");
+    card.appendChild(date);
+
+    const details = document.createElement("p");
+    details.textContent = ticket.message || "No message";
+    card.appendChild(details);
+
+    const replyLabel = document.createElement("h4");
+    replyLabel.textContent = "Admin Reply";
+    card.appendChild(replyLabel);
+
+    const replyBox = document.createElement("textarea");
+    replyBox.placeholder = "Write your reply...";
+    replyBox.value = ticket.admin_reply || "";
+    card.appendChild(replyBox);
+
+    const replyButton = document.createElement("button");
+    replyButton.textContent = "Save Reply";
+    replyButton.style.marginTop = "9px";
+    replyButton.onclick = ()=>saveReply(ticket.id,replyBox,replyButton);
+    card.appendChild(replyButton);
+
+    const statusRow = document.createElement("div");
+    statusRow.className = "status-row";
+
+    const statusSelect = document.createElement("select");
+
+    ["open","in progress","resolved"].forEach(status=>{
+      const option = document.createElement("option");
+      option.value = status;
+      option.textContent = status.toUpperCase();
+      statusSelect.appendChild(option);
     });
-    body.appendChild(tr);
-  });
 
-  message.textContent = "Total Support Tickets: " + data.length;
-  table.style.display = "table";
+    const currentStatus = String(ticket.status || "open").toLowerCase();
+    statusSelect.value =
+      ["open","in progress","resolved"].includes(currentStatus)
+      ? currentStatus : "open";
+
+    const statusButton = document.createElement("button");
+    statusButton.textContent = "Update Status";
+    statusButton.onclick = ()=>updateStatus(ticket.id,statusSelect,statusButton);
+
+    statusRow.appendChild(statusSelect);
+    statusRow.appendChild(statusButton);
+    card.appendChild(statusRow);
+
+    list.appendChild(card);
+  });
+}
+
+async function saveReply(id,box,button){
+  const reply = box.value.trim();
+
+  if(!reply){
+    alert("Please write a reply first.");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Saving...";
+
+  const {error} = await client
+    .from("support_tickets")
+    .update({admin_reply:reply})
+    .eq("id",id);
+
+  if(error){
+    alert("Reply save nahi hua: " + error.message);
+    button.disabled = false;
+    button.textContent = "Save Reply";
+    return;
+  }
+
+  alert("Admin reply saved successfully.");
+  button.disabled = false;
+  button.textContent = "Save Reply";
+}
+
+async function updateStatus(id,select,button){
+  button.disabled = true;
+  button.textContent = "Updating...";
+
+  const {error} = await client
+    .from("support_tickets")
+    .update({status:select.value})
+    .eq("id",id);
+
+  if(error){
+    alert("Status update nahi hua: " + error.message);
+    button.disabled = false;
+    button.textContent = "Update Status";
+    return;
+  }
+
+  alert("Ticket status updated successfully.");
+  loadTickets();
 }
 
 initialize();
