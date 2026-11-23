@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JoinBuddy - Support Tickets</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f5fb;color:#20243a}
+header{background:#171b3b;color:white;padding:20px}
+main{padding:20px;max-width:1100px;margin:auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.card{background:white;padding:20px;border-radius:14px;box-shadow:0 3px 15px #00000010;margin-top:18px}
+button{background:#5546d9;color:white;border:0;padding:11px 18px;border-radius:8px;cursor:pointer}
+.table-wrap{overflow-x:auto;margin-top:15px}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
+th{background:#f1f0ff}
+#message{color:#666;padding:20px 0}
+</style>
+</head>
+<body>
+<header>
+<h2>JoinBuddy Support Tickets</h2>
+<p>Partner Support Management</p>
+</header>
+
+<main>
+<div class="top">
+<h2>Support Management</h2>
+<button onclick="loadTickets()">Refresh Tickets</button>
+</div>
+
+<div class="card">
+<h3>All Support Tickets</h3>
+<div id="message">Loading tickets...</div>
+<div class="table-wrap">
+<table id="ticketTable" style="display:none">
+<thead id="tableHead"></thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+</div>
+
+<button style="margin-top:20px" onclick="location.href='admin-panel.html'">
+Back to Dashboard
+</button>
+</main>
+
+<script>
+const client = window.supabaseClient;
+
+async function initialize(){
+  if(!client){
+    document.getElementById("message").textContent =
+      "Supabase connection not found.";
+    return;
+  }
+
+  const {data:{user},error} = await client.auth.getUser();
+
+  if(error || !user){
+    location.href = "admin-panel.html";
+    return;
+  }
+
+  const {data:profile,error:profileError} = await client
+    .from("partner_profiles")
+    .select("role,status")
+    .eq("id",user.id)
+    .single();
+
+  if(profileError || !profile ||
+     profile.role !== "admin" ||
+     profile.status !== "approved"){
+    alert("Admin access required");
+    location.href = "admin-panel.html";
+    return;
+  }
+
+  loadTickets();
+}
+
+async function loadTickets(){
+  const message = document.getElementById("message");
+  const table = document.getElementById("ticketTable");
+  message.textContent = "Loading tickets...";
+  table.style.display = "none";
+
+  const {data,error} = await client
+    .from("support_tickets")
+    .select("*")
+    .limit(500);
+
+  if(error){
+    message.textContent = "Tickets load nahi ho paaye: " + error.message;
+    return;
+  }
+
+  if(!data || data.length === 0){
+    message.textContent = "Abhi koi support ticket available nahi hai.";
+    return;
+  }
+
+  const columns = Object.keys(data[0]);
+  const head = document.getElementById("tableHead");
+  const body = document.getElementById("tableBody");
+
+  head.replaceChildren();
+  body.replaceChildren();
+
+  const headerRow = document.createElement("tr");
+  columns.forEach(col=>{
+    const th = document.createElement("th");
+    th.textContent = col.replaceAll("_"," ").toUpperCase();
+    headerRow.appendChild(th);
+  });
+  head.appendChild(headerRow);
+
+  data.forEach(item=>{
+    const tr = document.createElement("tr");
+    columns.forEach(col=>{
+      const td = document.createElement("td");
+      const value = item[col];
+      td.textContent = value == null ? "-" :
+        typeof value === "object" ? JSON.stringify(value) : String(value);
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+
+  message.textContent = "Total Support Tickets: " + data.length;
+  table.style.display = "table";
+}
+
+initialize();
+</script>
+</body>
+</html>
