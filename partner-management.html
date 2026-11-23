@@ -3,205 +3,210 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JoinBuddy Partner Management</title>
-
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;font-family:Arial,sans-serif;
-  background:#f3f5fb;color:#1e293b;
-}
-header{
-  padding:22px;background:linear-gradient(110deg,#172554,#5632a8);
-  color:white;
-}
-header h1{margin:0 0 8px}
-.container{max-width:1000px;margin:auto;padding:18px}
-.card{
-  background:white;padding:20px;margin:15px 0;
-  border-radius:15px;box-shadow:0 4px 18px #1725540b;
-}
-.top{
-  display:flex;justify-content:space-between;
-  align-items:center;gap:12px;flex-wrap:wrap;
-}
-button{
-  border:0;border-radius:9px;padding:12px 17px;
-  background:linear-gradient(110deg,#7137cf,#3159c8);
-  color:white;font-size:15px;cursor:pointer;
-}
-button:disabled{opacity:.5}
-.count{
-  font-size:30px;font-weight:bold;color:#6335bd;
-}
+body{margin:0;font-family:Arial;background:#f3f5fb;color:#1e293b}
+header{padding:22px;background:linear-gradient(110deg,#172554,#5632a8);color:white}
+.container{max-width:1100px;margin:auto;padding:18px}
+.card{background:white;padding:20px;margin:15px 0;border-radius:15px;box-shadow:0 4px 18px #1725540b}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+button{border:0;border-radius:8px;padding:10px 14px;color:white;cursor:pointer}
+.refresh{background:#6335bd}
+.activate{background:#059669}
+.block{background:#dc2626}
+.count{font-size:30px;font-weight:bold;color:#6335bd}
 .table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:500px}
-th,td{
-  text-align:left;padding:14px;
-  border-bottom:1px solid #e5e7eb;font-size:14px;
-}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{text-align:left;padding:13px;border-bottom:1px solid #e5e7eb;font-size:14px}
 th{background:#eef0ff;color:#43318b}
-.status{
-  display:inline-block;padding:6px 10px;
-  border-radius:20px;background:#dcfce7;color:#15803d;
-  font-size:12px;font-weight:bold;
-}
+.status{padding:6px 10px;border-radius:20px;font-size:12px;font-weight:bold}
+.active{background:#dcfce7;color:#15803d}
+.blocked{background:#fee2e2;color:#b91c1c}
+.pending{background:#fef3c7;color:#92400e}
 .message{color:#64748b;overflow-wrap:anywhere}
-.back{display:block;margin:20px auto}
-@media(max-width:600px){
-  header h1{font-size:23px}
-  .container{padding:12px}
-  .card{padding:15px}
-}
+.back{display:block;margin:20px auto;background:#172554}
+@media(max-width:600px){.container{padding:12px}.card{padding:14px}header h1{font-size:23px}}
 </style>
 </head>
-
 <body>
-
 <header>
-  <h1>JoinBuddy Admin</h1>
-  <p>Partner Management</p>
+<h1>JoinBuddy Admin</h1>
+<p>Partner Management</p>
 </header>
 
 <div class="container">
+<div class="card">
+<div class="top">
+<div>
+<h2>Partner Management</h2>
+<p>Manage Active and Blocked Partners</p>
+</div>
+<button class="refresh" id="refreshButton">Refresh</button>
+</div>
 
-  <div class="card">
-    <div class="top">
-      <div>
-        <h2>Partner Management</h2>
-        <p>All Registered Partners</p>
-      </div>
-      <button id="refreshButton">Refresh</button>
-    </div>
+<p>Total Partners</p>
+<div class="count" id="totalPartners">0</div>
+<p class="message" id="message">Loading Partners...</p>
 
-    <p>Total Partners</p>
-    <div class="count" id="totalPartners">0</div>
-    <p class="message" id="message">Loading Partners...</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Partner ID</th>
+<th>Partner Name</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="partnerTable"></tbody>
+</table>
+</div>
+</div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Partner ID</th>
-            <th>Partner Name</th>
-            <th>Role</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="partnerTable"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <button class="back" onclick="location.href='admin-panel.html'">
-    Back to Admin Dashboard
-  </button>
-
+<button class="back" onclick="location.href='admin-panel.html'">
+Back to Admin Dashboard
+</button>
 </div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
-
 <script>
-const client = window.supabaseClient;
+const client=window.supabaseClient;
+const message=document.getElementById("message");
 
 async function checkAdmin(){
-  if(!client) throw new Error("Supabase connection failed.");
+ if(!client) throw new Error("Supabase connection failed.");
 
-  const {data:{user},error} = await client.auth.getUser();
+ const {data:{user},error}=await client.auth.getUser();
+ if(error||!user){
+  location.href="admin-panel.html";
+  return false;
+ }
 
-  if(error || !user){
-    location.href="admin-panel.html";
-    return false;
-  }
+ const {data:profile,error:profileError}=await client
+ .from("partner_profiles")
+ .select("role,status")
+ .eq("id",user.id).single();
 
-  const {data:profile,error:profileError} = await client
-    .from("partner_profiles")
-    .select("role,status")
-    .eq("id",user.id)
-    .single();
-
-  if(profileError || !profile ||
-     profile.role !== "admin" ||
-     profile.status !== "approved"){
-    await client.auth.signOut();
-    location.href="admin-panel.html";
-    return false;
-  }
-
-  return true;
+ if(profileError||!profile||profile.role!=="admin"||profile.status!=="approved"){
+  await client.auth.signOut();
+  location.href="admin-panel.html";
+  return false;
+ }
+ return true;
 }
 
 async function loadPartners(){
-  const button = document.getElementById("refreshButton");
-  const message = document.getElementById("message");
-  const table = document.getElementById("partnerTable");
+ const button=document.getElementById("refreshButton");
+ const table=document.getElementById("partnerTable");
+ button.disabled=true;
+ message.textContent="Loading Partners...";
+ table.innerHTML="";
 
-  button.disabled = true;
-  message.textContent = "Loading Partners...";
-  table.innerHTML = "";
+ try{
+  if(!await checkAdmin()) return;
 
-  try{
-    const allowed = await checkAdmin();
-    if(!allowed) return;
+  const {data,error}=await client
+   .from("partner_profiles")
+   .select("id,full_name,partner_id,role,status")
+   .eq("role","partner")
+   .order("partner_id",{ascending:true});
 
-    const {data,error} = await client
-      .from("partner_profiles")
-      .select("id,full_name,partner_id,role,status")
-      .eq("role","partner")
-      .order("partner_id",{ascending:true});
+  if(error) throw error;
 
-    if(error) throw error;
+  document.getElementById("totalPartners").textContent=data.length;
 
-    document.getElementById("totalPartners").textContent =
-      data ? data.length : 0;
-
-    if(!data || data.length === 0){
-      message.textContent = "No Partners Found.";
-      return;
-    }
-
-    data.forEach(partner=>{
-      const row = document.createElement("tr");
-
-      [
-        partner.partner_id || "-",
-        partner.full_name || "-",
-        partner.role || "-",
-        partner.status || "-"
-      ].forEach((value,index)=>{
-        const cell = document.createElement("td");
-        cell.textContent = value;
-
-        if(index === 3 && String(value).toLowerCase() === "approved"){
-          const badge = document.createElement("span");
-          badge.className = "status";
-          badge.textContent = value;
-          cell.textContent = "";
-          cell.appendChild(badge);
-        }
-
-        row.appendChild(cell);
-      });
-
-      table.appendChild(row);
-    });
-
-    message.textContent = "Partners Successfully Loaded.";
-
-  }catch(error){
-    message.textContent = "Error: " + error.message;
-  }finally{
-    button.disabled = false;
+  if(!data.length){
+   message.textContent="No Partners Found.";
+   return;
   }
+
+  data.forEach(partner=>{
+   const row=document.createElement("tr");
+
+   const id=document.createElement("td");
+   id.textContent=partner.partner_id||"-";
+
+   const name=document.createElement("td");
+   name.textContent=partner.full_name||"-";
+
+   const statusCell=document.createElement("td");
+   const badge=document.createElement("span");
+   const status=String(partner.status||"pending").toLowerCase();
+
+   badge.className="status "+(
+    status==="approved"?"active":
+    status==="blocked"?"blocked":"pending"
+   );
+
+   badge.textContent=
+    status==="approved"?"Active":
+    status==="blocked"?"Blocked":
+    partner.status||"Pending";
+
+   statusCell.appendChild(badge);
+
+   const actionCell=document.createElement("td");
+   const action=document.createElement("button");
+
+   if(status==="approved"){
+    action.textContent="Block Partner";
+    action.className="block";
+    action.onclick=()=>updateStatus(partner.id,"blocked");
+   }else{
+    action.textContent="Activate Partner";
+    action.className="activate";
+    action.onclick=()=>updateStatus(partner.id,"approved");
+   }
+
+   actionCell.appendChild(action);
+   row.append(id,name,statusCell,actionCell);
+   table.appendChild(row);
+  });
+
+  message.textContent="Partners Successfully Loaded.";
+
+ }catch(error){
+  message.textContent="Error: "+error.message;
+ }finally{
+  button.disabled=false;
+ }
 }
 
-document.getElementById("refreshButton")
-  .addEventListener("click",loadPartners);
+async function updateStatus(id,newStatus){
+ const action=newStatus==="blocked"?"Block":"Activate";
 
+ if(!confirm("Are you sure you want to "+action+" this Partner?")) return;
+
+ message.textContent="Updating Partner Status...";
+
+ try{
+  if(!await checkAdmin()) return;
+
+  const {data,error}=await client
+   .from("partner_profiles")
+   .update({status:newStatus})
+   .eq("id",id)
+   .eq("role","partner")
+   .select("id");
+
+  if(error) throw error;
+  if(!data||data.length===0){
+   throw new Error("Update not allowed. Check Supabase Admin update policy.");
+  }
+
+  message.textContent="Partner status updated successfully.";
+  await loadPartners();
+
+ }catch(error){
+  message.textContent="Update Error: "+error.message;
+ }
+}
+
+document.getElementById("refreshButton").addEventListener("click",loadPartners);
 loadPartners();
 </script>
-
 </body>
 </html>
