@@ -4,45 +4,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JoinBuddy - Reports</title>
+<title>JoinBuddy - Partner Reports</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f4f5fb;color:#20243a}
 header{background:#171b3b;color:white;padding:20px}
-header h2{margin:0}
 main{padding:20px;max-width:1100px;margin:auto}
-.card{background:white;padding:20px;border-radius:14px;box-shadow:0 3px 15px #00000010;margin-top:18px}
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 button{background:#5546d9;color:white;border:0;padding:11px 18px;border-radius:8px;cursor:pointer}
+.card{background:white;padding:18px;border-radius:14px;box-shadow:0 3px 15px #00000010;margin-top:18px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:15px}
+.stat{background:#f1f0ff;padding:15px;border-radius:10px}
+.stat small{color:#666}
+.stat h2{margin:8px 0 0;font-size:25px}
 .table-wrap{overflow-x:auto;margin-top:15px}
-table{width:100%;border-collapse:collapse;min-width:600px}
-th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{padding:13px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
 th{background:#f1f0ff}
-#message{color:#666;padding:20px 0}
+#message{color:#666;padding:18px 0}
 </style>
 </head>
 <body>
 
 <header>
 <h2>JoinBuddy Admin Reports</h2>
-<p>Partner-wise Work Reports</p>
+<p>Partner-wise Work Performance</p>
 </header>
 
 <main>
 <div class="top">
-<h2>Reports Management</h2>
+<h2>Reports Dashboard</h2>
 <button onclick="loadReports()">Refresh Reports</button>
 </div>
 
+<div class="stats">
+<div class="stat">
+<small>Total Partners</small>
+<h2 id="totalPartners">0</h2>
+</div>
+<div class="stat">
+<small>Total Work</small>
+<h2 id="totalWork">0</h2>
+</div>
+<div class="stat">
+<small>Completed Work</small>
+<h2 id="completedWork">0</h2>
+</div>
+<div class="stat">
+<small>Pending Work</small>
+<h2 id="pendingWork">0</h2>
+</div>
+<div class="stat">
+<small>Rejected Work</small>
+<h2 id="rejectedWork">0</h2>
+</div>
+</div>
+
 <div class="card">
-<h3>All Partner Reports</h3>
+<h3>Partner-wise Reports</h3>
 <div id="message">Loading reports...</div>
 <div class="table-wrap">
 <table id="reportTable" style="display:none">
-<thead id="tableHead"></thead>
-<tbody id="tableBody"></tbody>
+<thead>
+<tr>
+<th>Partner Name</th>
+<th>Total Work</th>
+<th>Completed</th>
+<th>Pending</th>
+<th>Rejected</th>
+</tr>
+</thead>
+<tbody id="reportBody"></tbody>
 </table>
 </div>
 </div>
@@ -89,52 +123,92 @@ async function initialize(){
 async function loadReports(){
   const message = document.getElementById("message");
   const table = document.getElementById("reportTable");
+  const body = document.getElementById("reportBody");
+
   message.textContent = "Loading reports...";
   table.style.display = "none";
-
-  const {data,error} = await client
-    .from("reports")
-    .select("*")
-    .limit(500);
-
-  if(error){
-    message.textContent = "Reports load nahi ho paaye: " + error.message;
-    return;
-  }
-
-  if(!data || data.length === 0){
-    message.textContent = "Abhi koi report available nahi hai.";
-    return;
-  }
-
-  const columns = Object.keys(data[0]);
-  const head = document.getElementById("tableHead");
-  const body = document.getElementById("tableBody");
-
-  head.replaceChildren();
   body.replaceChildren();
 
-  const headerRow = document.createElement("tr");
-  columns.forEach(col=>{
-    const th = document.createElement("th");
-    th.textContent = col.replaceAll("_"," ").toUpperCase();
-    headerRow.appendChild(th);
-  });
-  head.appendChild(headerRow);
+  const [partnersResult,assignmentsResult] = await Promise.all([
+    client.from("partner_profiles")
+      .select("id,full_name")
+      .eq("role","partner"),
 
-  data.forEach(item=>{
+    client.from("lead_assignments")
+      .select("partner_user_id,status")
+  ]);
+
+  if(partnersResult.error){
+    message.textContent =
+      "Partners load error: " + partnersResult.error.message;
+    return;
+  }
+
+  if(assignmentsResult.error){
+    message.textContent =
+      "Assignments load error: " + assignmentsResult.error.message;
+    return;
+  }
+
+  const partners = partnersResult.data || [];
+  const assignments = assignmentsResult.data || [];
+
+  let grandTotal = 0;
+  let grandCompleted = 0;
+  let grandPending = 0;
+  let grandRejected = 0;
+
+  partners.forEach(partner=>{
+    const work = assignments.filter(
+      item => item.partner_user_id === partner.id
+    );
+
+    const completed = work.filter(
+      item => String(item.status).toLowerCase() === "completed"
+    ).length;
+
+    const pending = work.filter(
+      item => String(item.status).toLowerCase() === "assigned"
+    ).length;
+
+    const rejected = work.filter(
+      item => String(item.status).toLowerCase() === "rejected"
+    ).length;
+
+    grandTotal += work.length;
+    grandCompleted += completed;
+    grandPending += pending;
+    grandRejected += rejected;
+
     const tr = document.createElement("tr");
-    columns.forEach(col=>{
+
+    [
+      partner.full_name || "Unnamed Partner",
+      work.length,
+      completed,
+      pending,
+      rejected
+    ].forEach(value=>{
       const td = document.createElement("td");
-      const value = item[col];
-      td.textContent = value == null ? "-" :
-        typeof value === "object" ? JSON.stringify(value) : String(value);
+      td.textContent = value;
       tr.appendChild(td);
     });
+
     body.appendChild(tr);
   });
 
-  message.textContent = "Total Reports: " + data.length;
+  document.getElementById("totalPartners").textContent = partners.length;
+  document.getElementById("totalWork").textContent = grandTotal;
+  document.getElementById("completedWork").textContent = grandCompleted;
+  document.getElementById("pendingWork").textContent = grandPending;
+  document.getElementById("rejectedWork").textContent = grandRejected;
+
+  if(partners.length === 0){
+    message.textContent = "No partners found.";
+    return;
+  }
+
+  message.textContent = "Reports loaded successfully.";
   table.style.display = "table";
 }
 
