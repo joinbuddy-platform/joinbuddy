@@ -9,7 +9,6 @@
 <style>
 :root{
   --navy:#111827;
-  --navy2:#1e293b;
   --purple:#7c3aed;
   --blue:#2563eb;
   --cyan:#06b6d4;
@@ -17,26 +16,19 @@
   --text:#1e293b;
 }
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
 button,input{font:inherit}
 button{cursor:pointer}
+
 #loginSection{
-  max-width:420px;
-  margin:70px auto;
-  padding:28px;
-  background:white;
-  border-radius:18px;
+  max-width:420px;margin:70px auto;padding:28px;
+  background:white;border-radius:18px;
   box-shadow:0 12px 40px #17255418;
 }
 .login-logo{
   width:58px;height:58px;border-radius:16px;
-  display:grid;place-items:center;
-  color:white;font-size:25px;font-weight:bold;
+  display:grid;place-items:center;color:white;
+  font-size:25px;font-weight:bold;
   background:linear-gradient(135deg,var(--purple),var(--cyan));
 }
 #loginSection h1{margin-bottom:5px}
@@ -50,6 +42,7 @@ input{
 }
 #loginButton{width:100%}
 #dashboard{display:none;min-height:100vh}
+
 .sidebar{
   position:fixed;left:0;top:0;bottom:0;width:245px;
   padding:23px 16px;color:white;
@@ -63,10 +56,7 @@ input{
 }
 .brand h2{font-size:20px;margin:0}
 .brand small{color:#aab5cb}
-.menu-label{
-  color:#8996b1;font-size:11px;
-  letter-spacing:1.5px;margin:20px 10px 9px;
-}
+.menu-label{color:#8996b1;font-size:11px;letter-spacing:1.5px;margin:20px 10px 9px}
 .nav-item{
   display:block;width:100%;text-align:left;
   padding:13px 14px;margin:5px 0;
@@ -82,20 +72,12 @@ input{
   color:white;background:#ffffff10;border-radius:9px;
 }
 .main{margin-left:245px;padding:25px 30px}
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:15px;margin-bottom:28px;
-}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:28px}
 .topbar h1{margin:0;font-size:25px}
 .topbar p{margin:6px 0;color:#718096}
-.admin-chip{
-  padding:10px 14px;border-radius:30px;
-  background:#ede9fe;color:#6d28d9;font-weight:bold;
-}
-.mobile-menu{
-  display:none;border:0;border-radius:8px;
-  padding:10px;background:#e9e7ff;color:#5b21b6;
-}
+.admin-chip{padding:10px 14px;border-radius:30px;background:#ede9fe;color:#6d28d9;font-weight:bold}
+.mobile-menu{display:none;border:0;border-radius:8px;padding:10px;background:#e9e7ff;color:#5b21b6}
+
 .welcome{
   padding:25px;border-radius:17px;color:white;
   background:linear-gradient(110deg,#5426a8,#2855bd,#087fbd);
@@ -103,13 +85,11 @@ input{
 }
 .welcome h2{margin:0 0 8px}
 .welcome p{margin:0;color:#e0e7ff}
-.stats{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:17px;margin-bottom:23px;
-}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;margin-bottom:23px}
 .stat-card,.panel{
-  background:white;border-radius:14px;
-  padding:21px;box-shadow:0 4px 18px #1725540b;
+  background:white;border-radius:14px;padding:21px;
+  box-shadow:0 4px 18px #1725540b;
 }
 .stat-card small{color:#718096}
 .stat-card h2{font-size:29px;margin:12px 0 0}
@@ -118,22 +98,35 @@ input{
   display:grid;place-items:center;font-size:20px;
   background:#ede9fe;color:#6d28d9;
 }
-.panel h2{margin-top:0}
-.panel p{color:#64748b}
-.form-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:0 15px;
+
+/* Clickable Total Partners Card */
+.partner-stat{
+  width:100%;
+  text-align:left;
+  color:inherit;
+  font-family:inherit;
+  border:2px solid transparent;
+  cursor:pointer;
+  transition:.2s;
 }
+.partner-stat:hover{
+  border-color:#8b5cf6;
+  transform:translateY(-3px);
+  box-shadow:0 8px 22px #7137cf25;
+}
+.partner-stat:focus-visible{
+  outline:3px solid #8b5cf6;
+  outline-offset:3px;
+}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 15px}
 .form-grid .full{grid-column:1/-1}
 #message{overflow-wrap:anywhere;margin-top:14px}
 .section-title{margin:25px 0 14px}
-.future-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:15px;
-}
-.future-card{
-  background:white;border-radius:13px;padding:18px;
-  border:1px solid #e5e7eb;
-}
+.future-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.future-card{background:white;border-radius:13px;padding:18px;border:1px solid #e5e7eb}
 .future-card small{color:#7c3aed}
+
 @media(max-width:850px){
   .sidebar{display:none;z-index:5;width:260px}
   .sidebar.open{display:block}
@@ -187,6 +180,7 @@ input{
     <div class="menu-label">MAIN MENU</div>
     <a class="nav-item active" href="#overview">▦ &nbsp; Dashboard</a>
     <a class="nav-item" href="admin-leads.html">☷ &nbsp; All Leads</a>
+    <a class="nav-item" href="partner-management.html">♙ &nbsp; Partner Management</a>
     <a class="nav-item" href="#createPartner">＋ &nbsp; Create Partner</a>
 
     <div class="menu-label">MANAGEMENT</div>
@@ -222,11 +216,15 @@ input{
         <small>Total Leads</small>
         <h2 id="totalLeads">—</h2>
       </div>
-      <div class="stat-card">
+
+      <button type="button" class="stat-card partner-stat"
+        onclick="location.href='partner-management.html'"
+        aria-label="Open Partner Management">
         <div class="stat-icon">♙</div>
-        <small>Total Partners</small>
+        <small>Total Partners ↗</small>
         <h2 id="totalPartners">—</h2>
-      </div>
+      </button>
+
       <div class="stat-card">
         <div class="stat-icon">✓</div>
         <small>Portal Status</small>
@@ -285,45 +283,42 @@ input{
 <script src="supabase-config.js"></script>
 
 <script>
-const client = window.supabaseClient;
-
-const loginSection = document.getElementById("loginSection");
-const dashboard = document.getElementById("dashboard");
-const loginMessage = document.getElementById("loginMessage");
-const message = document.getElementById("message");
+const client=window.supabaseClient;
+const loginSection=document.getElementById("loginSection");
+const dashboard=document.getElementById("dashboard");
+const loginMessage=document.getElementById("loginMessage");
+const message=document.getElementById("message");
 
 function showLogin(){
-  loginSection.style.display = "block";
-  dashboard.style.display = "none";
+  loginSection.style.display="block";
+  dashboard.style.display="none";
 }
 
 function showDashboard(){
-  loginSection.style.display = "none";
-  dashboard.style.display = "block";
+  loginSection.style.display="none";
+  dashboard.style.display="block";
 }
 
 async function verifyAdmin(){
-  const {data:{user},error} = await client.auth.getUser();
+  const {data:{user},error}=await client.auth.getUser();
 
-  if(error || !user){
+  if(error||!user){
     await client.auth.signOut();
     showLogin();
     return false;
   }
 
-  const {data:profile,error:profileError} = await client
+  const {data:profile,error:profileError}=await client
     .from("partner_profiles")
     .select("role,status")
     .eq("id",user.id)
     .single();
 
-  if(profileError || !profile ||
-     profile.role !== "admin" ||
-     profile.status !== "approved"){
+  if(profileError||!profile||profile.role!=="admin"||profile.status!=="approved"){
     await client.auth.signOut();
     showLogin();
-    loginMessage.style.color = "red";
-    loginMessage.textContent = "This account is not an approved Admin.";
+    loginMessage.style.color="red";
+    loginMessage.textContent="This account is not an approved Admin.";
     return false;
   }
 
@@ -333,80 +328,73 @@ async function verifyAdmin(){
 }
 
 async function loadStats(){
-  const leads = await client
-    .from("leads")
-    .select("id",{count:"exact",head:true});
-
-  const partners = await client
-    .from("partner_profiles")
+  const leads=await client.from("leads").select("id",{count:"exact",head:true});
+  const partners=await client.from("partner_profiles")
     .select("id",{count:"exact",head:true})
     .eq("role","partner");
 
-  document.getElementById("totalLeads").textContent =
-    leads.error ? "—" : leads.count;
+  document.getElementById("totalLeads").textContent=
+    leads.error?"—":leads.count;
 
-  document.getElementById("totalPartners").textContent =
-    partners.error ? "—" : partners.count;
+  document.getElementById("totalPartners").textContent=
+    partners.error?"—":partners.count;
 }
 
 document.getElementById("loginForm").addEventListener("submit",async(e)=>{
   e.preventDefault();
 
   if(!client){
-    loginMessage.textContent = "Supabase connection failed.";
+    loginMessage.textContent="Supabase connection failed.";
     return;
   }
 
-  const button = document.getElementById("loginButton");
-  button.disabled = true;
-  loginMessage.style.color = "#333";
-  loginMessage.textContent = "Checking Admin Account...";
+  const button=document.getElementById("loginButton");
+  button.disabled=true;
+  loginMessage.style.color="#333";
+  loginMessage.textContent="Checking Admin Account...";
 
-  const email = document.getElementById("adminEmail").value.trim();
-  const password = document.getElementById("adminPassword").value;
+  const email=document.getElementById("adminEmail").value.trim();
+  const password=document.getElementById("adminPassword").value;
 
-  const {error} = await client.auth.signInWithPassword({email,password});
+  const {error}=await client.auth.signInWithPassword({email,password});
 
   if(error){
-    loginMessage.style.color = "red";
-    loginMessage.textContent = "Login failed: " + error.message;
-    button.disabled = false;
+    loginMessage.style.color="red";
+    loginMessage.textContent="Login failed: "+error.message;
+    button.disabled=false;
     return;
   }
 
-  const success = await verifyAdmin();
-
-  if(success){
-    loginMessage.textContent = "";
-  }
-  button.disabled = false;
+  const success=await verifyAdmin();
+  if(success) loginMessage.textContent="";
+  button.disabled=false;
 });
 
 document.getElementById("partnerForm").addEventListener("submit",async(e)=>{
   e.preventDefault();
 
-  const isAdmin = await verifyAdmin();
+  const isAdmin=await verifyAdmin();
   if(!isAdmin) return;
 
-  const full_name = document.getElementById("fullName").value.trim();
-  const partner_id = document.getElementById("partnerId").value.trim().toUpperCase();
-  const password = document.getElementById("partnerPassword").value;
+  const full_name=document.getElementById("fullName").value.trim();
+  const partner_id=document.getElementById("partnerId").value.trim().toUpperCase();
+  const password=document.getElementById("partnerPassword").value;
 
-  message.style.color = "#333";
-  message.textContent = "Creating Partner Account...";
+  message.style.color="#333";
+  message.textContent="Creating Partner Account...";
 
-  const {data,error} = await client.functions.invoke("create-partner",{
+  const {data,error}=await client.functions.invoke("create-partner",{
     body:{full_name,partner_id,password}
   });
 
-  if(error || !data || !data.success){
-    message.style.color = "red";
-    message.textContent = "Error: " + (data?.error || error?.message || "Partner could not be created.");
+  if(error||!data||!data.success){
+    message.style.color="red";
+    message.textContent="Error: "+(data?.error||error?.message||"Partner could not be created.");
     return;
   }
 
-  message.style.color = "green";
-  message.textContent = "Partner created successfully! Partner ID: " + data.partner_id;
+  message.style.color="green";
+  message.textContent="Partner created successfully! Partner ID: "+data.partner_id;
   document.getElementById("partnerForm").reset();
   await loadStats();
 });
@@ -414,8 +402,8 @@ document.getElementById("partnerForm").addEventListener("submit",async(e)=>{
 document.getElementById("logoutButton").addEventListener("click",async()=>{
   await client.auth.signOut();
   showLogin();
-  loginMessage.style.color = "#333";
-  loginMessage.textContent = "Logged out successfully.";
+  loginMessage.style.color="#333";
+  loginMessage.textContent="Logged out successfully.";
 });
 
 document.getElementById("menuButton").addEventListener("click",()=>{
@@ -429,17 +417,16 @@ document.querySelectorAll(".nav-item[href]").forEach(item=>{
 });
 
 if(!client){
-  loginMessage.style.color = "red";
-  loginMessage.textContent = "Supabase connection failed. Check supabase-config.js";
-  document.getElementById("loginButton").disabled = true;
+  loginMessage.style.color="red";
+  loginMessage.textContent="Supabase connection failed. Check supabase-config.js";
+  document.getElementById("loginButton").disabled=true;
 }else{
   verifyAdmin().catch(error=>{
     showLogin();
-    loginMessage.style.color = "red";
-    loginMessage.textContent = error.message;
+    loginMessage.style.color="red";
+    loginMessage.textContent=error.message;
   });
 }
 </script>
-
 </body>
 </html>
