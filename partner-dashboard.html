@@ -5,21 +5,79 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoinBuddy Partner Dashboard</title>
+
 <style>
-body{font-family:Arial;background:#f2f5fa;margin:0;color:#222}
-header{background:#173b70;color:white;padding:20px}
+body{
+  font-family:Arial;
+  background:#f2f5fa;
+  margin:0;
+  color:#222;
+}
+header{
+  background:#173b70;
+  color:white;
+  padding:20px;
+}
 header h2{margin:0}
-.container{padding:20px;max-width:700px;margin:auto}
-.welcome{background:white;padding:20px;border-radius:12px;margin-bottom:20px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-.card{background:white;padding:22px 12px;border-radius:12px;text-align:center;box-shadow:0 2px 8px #0001}
-.card h3{color:#173b70;margin:8px 0}
-.card p{font-size:13px;color:#666}
-button{background:#173b70;color:white;border:0;padding:12px 20px;border-radius:7px;cursor:pointer}
-.logout{background:#c62828;margin-top:20px}
-@media(max-width:400px){.grid{grid-template-columns:1fr}}
+.container{
+  padding:20px;
+  max-width:700px;
+  margin:auto;
+}
+.welcome{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:20px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+.card{
+  background:white;
+  padding:22px 12px;
+  border-radius:12px;
+  text-align:center;
+  box-shadow:0 2px 8px #0001;
+}
+.card h3{
+  color:#173b70;
+  margin:8px 0;
+}
+.card p{
+  font-size:13px;
+  color:#666;
+}
+button{
+  background:#173b70;
+  color:white;
+  border:0;
+  padding:12px 20px;
+  border-radius:7px;
+  cursor:pointer;
+}
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+.logout{
+  background:#c62828;
+  margin-top:20px;
+}
+#message{
+  margin-top:15px;
+  overflow-wrap:anywhere;
+}
+.success{color:green}
+.error{color:#c62828}
+@media(max-width:400px){
+  .grid{grid-template-columns:1fr}
+}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -28,6 +86,7 @@ button{background:#173b70;color:white;border:0;padding:12px 20px;border-radius:7
 </header>
 
 <div class="container">
+
 <div class="welcome">
 <h2>Welcome, <span id="partnerName">Partner</span></h2>
 <p>Partner ID: <strong id="partnerId">Loading...</strong></p>
@@ -35,7 +94,10 @@ button{background:#173b70;color:white;border:0;padding:12px 20px;border-radius:7
 </div>
 
 <div class="grid">
-<div class="card" onclick="assignLeads()" style="cursor:pointer">
+
+<div class="card"
+     onclick="assignLeads()"
+     style="cursor:pointer">
 <h3>📋 Lead लेना</h3>
 <p>अपने Assigned Leads देखें</p>
 </div>
@@ -54,18 +116,32 @@ button{background:#173b70;color:white;border:0;padding:12px 20px;border-radius:7
 <h3>🎧 Partner Support</h3>
 <p>Help और Support प्राप्त करें</p>
 </div>
+
 </div>
 
 <button class="logout" onclick="logout()">Logout</button>
+
 <p id="message"></p>
+
 </div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 
 <script>
+
+const client = window.supabaseClient;
+
 async function loadDashboard(){
-  const client = window.supabaseClient;
+
+  const message = document.getElementById("message");
+
+  if(!client){
+    message.textContent="Supabase configuration नहीं मिली।";
+    message.className="error";
+    return;
+  }
+
   const {data:{user},error} = await client.auth.getUser();
 
   if(error || !user){
@@ -80,41 +156,137 @@ async function loadDashboard(){
     .single();
 
   if(profileError || !profile ||
-     profile.role!=="partner" || profile.status!=="approved"){
+     profile.role!=="partner" ||
+     profile.status!=="approved"){
+
     await client.auth.signOut();
     window.location.href="partner-login.html";
     return;
   }
 
-  document.getElementById("partnerName").textContent=profile.full_name;
-  document.getElementById("partnerId").textContent=profile.partner_id;
+  document.getElementById("partnerName").textContent =
+    profile.full_name || "Partner";
+
+  document.getElementById("partnerId").textContent =
+    profile.partner_id || "-";
 }
+
+
+async function assignLeads(){
+
+  const message = document.getElementById("message");
+  const card = document.querySelector(".grid .card");
+
+  if(!client){
+    message.textContent="Supabase connection नहीं मिली।";
+    message.className="error";
+    return;
+  }
+
+  card.style.pointerEvents="none";
+  message.className="";
+  message.textContent="Verification हो रही है...";
+
+  try{
+
+    const {data:{user},error:authError} =
+      await client.auth.getUser();
+
+    if(authError || !user){
+      window.location.href="partner-login.html";
+      return;
+    }
+
+    const {data:profile,error:profileError} = await client
+      .from("partner_profiles")
+      .select("role,status")
+      .eq("id",user.id)
+      .single();
+
+    if(profileError || !profile ||
+       profile.role!=="partner" ||
+       profile.status!=="approved"){
+
+      message.textContent="Partner Verification Failed.";
+      message.className="error";
+      return;
+    }
+
+    message.textContent="Leads assign हो रही हैं...";
+
+    const {data,error} =
+      await client.functions.invoke("assign-leads",{
+        method:"POST"
+      });
+
+    if(error){
+
+      let details=error.message;
+
+      try{
+        if(error.context){
+          const response=error.context.clone
+            ? error.context.clone()
+            : error.context;
+
+          if(typeof response.json==="function"){
+            const body=await response.json();
+            details=body.error ||
+                    body.message ||
+                    JSON.stringify(body);
+          }
+        }
+      }catch(e){
+        details=error.message;
+      }
+
+      throw new Error(details);
+    }
+
+    if(!data || !data.success){
+      throw new Error(
+        data?.error || "Assignment failed"
+      );
+    }
+
+    message.className="success";
+
+    message.textContent=
+      "Success! Total Leads: "+data.total_count+
+      " | New: "+data.new_count+
+      " | Old: "+data.old_count;
+
+    setTimeout(()=>{
+      window.location.href="my-leads.html";
+    },1200);
+
+  }catch(error){
+
+    message.className="error";
+    message.textContent="Error: "+error.message;
+
+  }finally{
+
+    card.style.pointerEvents="auto";
+
+  }
+}
+
 
 async function logout(){
-  await window.supabaseClient.auth.signOut();
+
+  await client.auth.signOut();
   window.location.href="partner-login.html";
+
 }
-async function assignLeads() {
-    const client = window.supabaseClient;
-    const message = document.getElementById("message");
 
-    message.textContent = "Leads assign ho rahi hain...";
 
-    const { data, error } = await client.functions.invoke("assign-leads");
+loadDashboard().catch(error=>{
+  document.getElementById("message").textContent=
+    "Error: "+error.message;
+});
 
-    if (error) {
-        message.textContent = "Error: " + error.message;
-        return;
-    }
-
-    if (data && data.success) {
-        message.textContent = "Leads successfully assigned!";
-        window.location.href = "my-leads.html";
-    } else {
-        message.textContent = data?.error || "Assignment failed";
-    }
-}
-loadDashboard();
 </script>
+
 </body>
 </html>
