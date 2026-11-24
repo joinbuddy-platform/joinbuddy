@@ -41,6 +41,12 @@ header h2{margin:0}
   border-radius:12px;
   text-align:center;
   box-shadow:0 2px 8px #0001;
+  cursor:pointer;
+  transition:0.2s;
+}
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 4px 12px #0002;
 }
 .card h3{
   color:#173b70;
@@ -95,24 +101,22 @@ button:disabled{
 
 <div class="grid">
 
-<div class="card"
-     onclick="assignLeads()"
-     style="cursor:pointer">
+<div class="card" onclick="assignLeads()">
 <h3>📋 Lead लेना</h3>
 <p>अपने Assigned Leads देखें</p>
 </div>
 
-<div class="card">
+<div class="card" onclick="openPage('report.html')">
 <h3>📤 Final Report</h3>
 <p>अपने Work की Report दें</p>
 </div>
 
-<div class="card">
+<div class="card" onclick="openPage('my-earnings.html')">
 <h3>💰 My Earnings</h3>
 <p>अपनी कमाई देखें</p>
 </div>
 
-<div class="card">
+<div class="card" onclick="openPage('support.html')">
 <h3>🎧 Partner Support</h3>
 <p>Help और Support प्राप्त करें</p>
 </div>
@@ -131,6 +135,10 @@ button:disabled{
 <script>
 
 const client = window.supabaseClient;
+
+function openPage(page){
+  window.location.href=page;
+}
 
 async function loadDashboard(){
 
@@ -275,7 +283,10 @@ async function assignLeads(){
 
 async function logout(){
 
-  await client.auth.signOut();
+  if(client){
+    await client.auth.signOut();
+  }
+
   window.location.href="partner-login.html";
 
 }
