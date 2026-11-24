@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -10,8 +11,10 @@ header{background:#173b70;color:white;padding:18px}
 .container{max-width:700px;margin:auto;padding:18px}
 .card{background:white;padding:18px;margin:14px 0;border-radius:10px;box-shadow:0 2px 8px #0001}
 button{background:#173b70;color:white;border:0;padding:11px 18px;border-radius:6px;cursor:pointer}
+select{width:100%;padding:11px;margin:8px 0;border:1px solid #ccc;border-radius:6px}
 .back{margin-top:15px}
 .error{color:#c62828}
+.success{color:green}
 .muted{color:#666;font-size:14px}
 </style>
 </head>
@@ -24,6 +27,7 @@ button{background:#173b70;color:white;border:0;padding:11px 18px;border-radius:6
 
 <div class="container">
 <h3 id="welcome">Loading...</h3>
+<div id="message"></div>
 <div id="leads">Leads लोड हो रही हैं...</div>
 <button class="back" onclick="location.href='partner-dashboard.html'">Back to Dashboard</button>
 </div>
@@ -32,6 +36,19 @@ button{background:#173b70;color:white;border:0;padding:11px 18px;border-radius:6
 <script src="supabase-config.js"></script>
 
 <script>
+const STATUS_OPTIONS = [
+  ["assigned","Assigned"],
+  ["not_called","Not Called"],
+  ["call_not_received","Call Not Received"],
+  ["in_progress","In Progress"],
+  ["interested","Interested"],
+  ["not_interested","Not Interested"],
+  ["invalid_number","Invalid Number"],
+  ["rejected","Rejected"],
+  ["submitted","Submitted"],
+  ["completed","Completed"]
+];
+
 async function loadLeads(){
   const client=window.supabaseClient;
   const leadsBox=document.getElementById("leads");
@@ -63,7 +80,7 @@ async function loadLeads(){
     .from("lead_assignments")
     .select("id,status,leads(lead_name,phone,email,city,source,notes)")
     .eq("partner_user_id",user.id)
-    .order("id",{ascending:false});
+    .order("assigned_at",{ascending:false});
 
   if(error){
     leadsBox.innerHTML='<p class="error">Error: '+escapeHTML(error.message)+'</p>';
@@ -83,17 +100,85 @@ async function loadLeads(){
 
     const card=document.createElement("div");
     card.className="card";
-    card.innerHTML=`
-      <h3>${escapeHTML(lead.lead_name || "Name not available")}</h3>
-      <p><b>Phone:</b> ${escapeHTML(lead.phone || "-")}</p>
-      <p><b>Email:</b> ${escapeHTML(lead.email || "-")}</p>
-      <p><b>City:</b> ${escapeHTML(lead.city || "-")}</p>
-      <p><b>Source:</b> ${escapeHTML(lead.source || "-")}</p>
-      <p><b>Notes:</b> ${escapeHTML(lead.notes || "-")}</p>
-      <p class="muted"><b>Work Status:</b> ${escapeHTML(item.status || "assigned")}</p>
-    `;
+
+    const title=document.createElement("h3");
+    title.textContent=lead.lead_name || "Name not available";
+    card.appendChild(title);
+
+    [
+      ["Phone",lead.phone],
+      ["Email",lead.email],
+      ["City",lead.city],
+      ["Source",lead.source],
+      ["Notes",lead.notes]
+    ].forEach(([label,value])=>{
+      const p=document.createElement("p");
+      const b=document.createElement("b");
+      b.textContent=label+": ";
+      p.appendChild(b);
+      p.appendChild(document.createTextNode(value || "-"));
+      card.appendChild(p);
+    });
+
+    const label=document.createElement("label");
+    label.textContent="Work Status";
+    card.appendChild(label);
+
+    const select=document.createElement("select");
+    select.id="status-"+item.id;
+
+    STATUS_OPTIONS.forEach(([value,text])=>{
+      const option=document.createElement("option");
+      option.value=value;
+      option.textContent=text;
+      if(value===item.status) option.selected=true;
+      select.appendChild(option);
+    });
+
+    card.appendChild(select);
+
+    const button=document.createElement("button");
+    button.textContent="Save Status";
+    button.onclick=()=>updateStatus(item.id,button);
+    card.appendChild(button);
+
     leadsBox.appendChild(card);
   });
+}
+
+async function updateStatus(assignmentId,button){
+  const client=window.supabaseClient;
+  const select=document.getElementById("status-"+assignmentId);
+  const message=document.getElementById("message");
+
+  button.disabled=true;
+  button.textContent="Saving...";
+
+  try{
+    const {data:{user},error:authError}=await client.auth.getUser();
+
+    if(authError || !user){
+      location.href="partner-login.html";
+      return;
+    }
+
+    const {error}=await client
+      .from("lead_assignments")
+      .update({status:select.value})
+      .eq("id",assignmentId)
+      .eq("partner_user_id",user.id);
+
+    if(error) throw error;
+
+    message.className="success";
+    message.textContent="Status successfully updated!";
+  }catch(error){
+    message.className="error";
+    message.textContent="Error: "+error.message;
+  }finally{
+    button.disabled=false;
+    button.textContent="Save Status";
+  }
 }
 
 function escapeHTML(value){
@@ -108,4 +193,3 @@ loadLeads().catch(error=>{
 </script>
 </body>
 </html>
-
