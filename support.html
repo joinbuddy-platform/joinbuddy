@@ -1,56 +1,92 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Partner Support - JoinBuddy</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f7fb;
-      color: #222;
-      line-height: 1.7;
-    }
-    header {
-      background: #172554;
-      color: white;
-      padding: 22px 15px;
-      text-align: center;
-    }
-    nav {
-      background: white;
-      padding: 12px;
-      text-align: center;
-    }
-    nav a {
-      margin: 7px;
-      color: #172554;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    main {
-      max-width: 750px;
-      margin: 25px auto;
-      padding: 25px;
-      background: white;
-      border-radius: 12px;
-    }
-    h2 { color: #172554; }
-    .support-box {
-      background: #f1f5f9;
-      padding: 18px;
-      border-radius: 10px;
-      margin-top: 15px;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      background: #172554;
-      color: white;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partner Support - JoinBuddy</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f5f7fb;
+  color:#222;
+}
+header{
+  background:#172554;
+  color:white;
+  padding:22px 15px;
+  text-align:center;
+}
+nav{
+  background:white;
+  padding:13px;
+  text-align:center;
+}
+nav a{
+  margin:7px;
+  color:#172554;
+  text-decoration:none;
+  font-weight:bold;
+}
+main{
+  max-width:800px;
+  margin:25px auto;
+  padding:20px;
+}
+.box,.ticket{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:18px;
+  box-shadow:0 2px 8px #00000010;
+}
+h2{color:#172554}
+input,textarea,select{
+  width:100%;
+  padding:12px;
+  margin:8px 0 15px;
+  border:1px solid #cbd5e1;
+  border-radius:7px;
+  font-size:15px;
+}
+textarea{min-height:110px;resize:vertical}
+button{
+  background:#172554;
+  color:white;
+  border:0;
+  padding:12px 20px;
+  border-radius:7px;
+  cursor:pointer;
+  font-weight:bold;
+}
+button:disabled{opacity:.6}
+.status{
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:20px;
+  background:#e0e7ff;
+  color:#172554;
+  font-size:13px;
+}
+.reply{
+  background:#f1f5f9;
+  padding:12px;
+  border-radius:8px;
+  margin-top:12px;
+}
+#notice{margin:12px 0;font-weight:bold}
+footer{
+  text-align:center;
+  padding:20px;
+  background:#172554;
+  color:white;
+}
+</style>
 </head>
+
 <body>
 
 <header>
@@ -60,48 +96,176 @@
 
 <nav>
   <a href="index.html">Home</a>
-  <a href="about.html">About</a>
-  <a href="contact.html">Contact</a>
-  <a href="partner-login.html">Partner Login</a>
+  <a href="partner-dashboard.html">Dashboard</a>
+  <a href="partner-login.html">Login</a>
 </nav>
 
 <main>
-  <h2>How Can We Help You?</h2>
-  <p>
-    JoinBuddy partners can contact our support team for help with
-    registration, login, assigned work, reports and earnings.
-  </p>
 
-  <div class="support-box">
-    <h3>Registration Support</h3>
-    <p>Need help with partner registration or approval?</p>
+  <div class="box">
+    <h2>Raise a Support Ticket</h2>
+
+    <form id="ticketForm">
+      <label>Subject</label>
+      <select id="subject" required>
+        <option value="">Select Subject</option>
+        <option>Registration Support</option>
+        <option>Login Support</option>
+        <option>Work & Lead Support</option>
+        <option>Report Support</option>
+        <option>Earnings & Payment</option>
+        <option>Other Issue</option>
+      </select>
+
+      <label>Describe Your Issue</label>
+      <textarea id="message"
+        placeholder="Write your issue here..."
+        required></textarea>
+
+      <button type="submit" id="submitBtn">
+        Submit Ticket
+      </button>
+    </form>
+
+    <div id="notice"></div>
   </div>
 
-  <div class="support-box">
-    <h3>Work & Lead Support</h3>
-    <p>Facing an issue with assigned leads or task completion?</p>
+  <div class="box">
+    <h2>My Support Tickets</h2>
+    <div id="tickets">Loading tickets...</div>
   </div>
 
-  <div class="support-box">
-    <h3>Report & Earnings Support</h3>
-    <p>Need help with report approval or payment-related queries?</p>
-  </div>
-
-  <div class="support-box">
-    <h3>Account & Login Support</h3>
-    <p>Having trouble accessing your partner account?</p>
-  </div>
-
-  <h2>Contact Support</h2>
-  <p>
-    Please visit our <a href="contact.html">Contact Us</a> page
-    to reach the JoinBuddy team.
-  </p>
 </main>
 
 <footer>
   <p>© 2026 JoinBuddy. All Rights Reserved.</p>
 </footer>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+const client = window.supabaseClient;
+
+const notice = document.getElementById("notice");
+const ticketsBox = document.getElementById("tickets");
+const form = document.getElementById("ticketForm");
+const submitBtn = document.getElementById("submitBtn");
+
+let currentUser = null;
+
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  })[char]);
+}
+
+async function initialize(){
+
+  if(!client){
+    notice.textContent = "Supabase connection not found.";
+    ticketsBox.textContent = "Configuration error.";
+    return;
+  }
+
+  const {data,error} = await client.auth.getSession();
+
+  if(error || !data.session){
+    window.location.href = "partner-login.html";
+    return;
+  }
+
+  currentUser = data.session.user;
+
+  await loadTickets();
+}
+
+async function loadTickets(){
+
+  ticketsBox.textContent = "Loading...";
+
+  const {data,error} = await client
+    .from("support_tickets")
+    .select("id,subject,message,status,created_at,admin_reply")
+    .eq("partner_user_id",currentUser.id)
+    .order("created_at",{ascending:false});
+
+  if(error){
+    ticketsBox.textContent = "Error: " + error.message;
+    return;
+  }
+
+  if(!data || data.length === 0){
+    ticketsBox.textContent = "You have not submitted any support tickets yet.";
+    return;
+  }
+
+  ticketsBox.innerHTML = data.map(ticket => `
+    <div class="ticket">
+      <h3>${escapeHTML(ticket.subject)}</h3>
+      <p>${escapeHTML(ticket.message)}</p>
+      <p>
+        <span class="status">${escapeHTML(ticket.status)}</span>
+      </p>
+      <small>
+        ${escapeHTML(new Date(ticket.created_at).toLocaleString())}
+      </small>
+
+      <div class="reply">
+        <strong>Admin Reply:</strong>
+        <p>${ticket.admin_reply
+          ? escapeHTML(ticket.admin_reply)
+          : "Waiting for Admin reply."}</p>
+      </div>
+    </div>
+  `).join("");
+}
+
+form.addEventListener("submit",async function(e){
+
+  e.preventDefault();
+
+  if(!currentUser)return;
+
+  const subject = document.getElementById("subject").value;
+  const message = document.getElementById("message").value.trim();
+
+  if(!subject || !message){
+    notice.textContent = "Please fill all fields.";
+    return;
+  }
+
+  submitBtn.disabled = true;
+  notice.textContent = "Submitting ticket...";
+
+  const {error} = await client
+    .from("support_tickets")
+    .insert({
+      partner_user_id:currentUser.id,
+      subject:subject,
+      message:message,
+      status:"Open"
+    });
+
+  submitBtn.disabled = false;
+
+  if(error){
+    notice.textContent = "Error: " + error.message;
+    return;
+  }
+
+  notice.textContent = "Support Ticket Submitted Successfully!";
+  form.reset();
+
+  await loadTickets();
+});
+
+initialize();
+</script>
 
 </body>
 </html>
