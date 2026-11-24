@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Earnings - JoinBuddy</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f2f5fa;color:#222}
+header{background:#173b70;color:white;padding:18px}
+.back{
+ display:inline-block;color:white;text-decoration:none;
+ background:#ffffff25;padding:9px 13px;border-radius:7px;
+ margin-bottom:12px
+}
+main{max-width:800px;margin:22px auto;padding:15px}
+h2{color:#173b70}
+header h2{color:white;margin:5px 0}
+.summary{
+ display:grid;grid-template-columns:repeat(3,1fr);
+ gap:12px;margin-bottom:20px
+}
+.card,.box{
+ background:white;padding:18px;border-radius:12px;
+ box-shadow:0 2px 8px #0001
+}
+.card{text-align:center}
+.card h3{font-size:14px;color:#64748b}
+.amount{font-size:22px;font-weight:bold;color:#173b70}
+.item{background:white;padding:16px;border-radius:10px;margin:12px 0}
+.status{display:inline-block;padding:5px 10px;border-radius:20px;background:#e0e7ff;color:#173b70;font-size:13px}
+#notice{font-weight:bold;overflow-wrap:anywhere}
+@media(max-width:500px){
+ .summary{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<a class="back" href="partner-dashboard.html">← Back to Dashboard</a>
+<h2>My Earnings</h2>
+<p>JoinBuddy Partner Portal</p>
+</header>
+
+<main>
+
+<div class="summary">
+ <div class="card">
+  <h3>Total Earnings</h3>
+  <div class="amount" id="total">₹0.00</div>
+ </div>
+ <div class="card">
+  <h3>Paid Earnings</h3>
+  <div class="amount" id="paid">₹0.00</div>
+ </div>
+ <div class="card">
+  <h3>Pending Earnings</h3>
+  <div class="amount" id="pending">₹0.00</div>
+ </div>
+</div>
+
+<div class="box">
+<h2>Earnings History</h2>
+<p id="notice">Loading earnings...</p>
+<div id="history"></div>
+</div>
+
+</main>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+const client=window.supabaseClient;
+
+function money(value){
+ return "₹"+Number(value||0).toLocaleString("en-IN",{
+  minimumFractionDigits:2,
+  maximumFractionDigits:2
+ });
+}
+
+function esc(value){
+ return String(value??"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",
+  '"':"&quot;","'":"&#039;"
+ })[c]);
+}
+
+async function loadEarnings(){
+
+ const notice=document.getElementById("notice");
+ const history=document.getElementById("history");
+
+ if(!client){
+  notice.textContent="Supabase connection not found.";
+  return;
+ }
+
+ const {data:auth,error:authError}=await client.auth.getUser();
+
+ if(authError||!auth.user){
+  location.href="partner-login.html";
+  return;
+ }
+
+ const user=auth.user;
+
+ const {data:profile,error:profileError}=await client
+  .from("partner_profiles")
+  .select("role,status")
+  .eq("id",user.id)
+  .single();
+
+ if(profileError||!profile||
+    profile.role!=="partner"||
+    profile.status!=="approved"){
+  notice.textContent="Approved Partner access required.";
+  return;
+ }
+
+ const {data,error}=await client
+  .from("earnings")
+  .select("id,amount,description,payment_status,created_at")
+  .eq("partner_user_id",user.id)
+  .order("created_at",{ascending:false});
+
+ if(error){
+  notice.textContent="Error: "+error.message;
+  return;
+ }
+
+ const rows=data||[];
+
+ let total=0;
+ let paid=0;
+ let pending=0;
+
+ rows.forEach(item=>{
+  const amount=Number(item.amount)||0;
+  total+=amount;
+
+  if(String(item.payment_status||"").toLowerCase()==="paid"){
+   paid+=amount;
+  }else{
+   pending+=amount;
+  }
+ });
+
+ document.getElementById("total").textContent=money(total);
+ document.getElementById("paid").textContent=money(paid);
+ document.getElementById("pending").textContent=money(pending);
+
+ if(!rows.length){
+  notice.textContent="No earnings records found yet.";
+  history.innerHTML="";
+  return;
+ }
+
+ notice.textContent=rows.length+" earnings record(s) found.";
+
+ history.innerHTML=rows.map(item=>`
+  <div class="item">
+   <h3>${money(item.amount)}</h3>
+   <p>${esc(item.description||"Work Earnings")}</p>
+   <p><span class="status">${esc(item.payment_status||"Pending")}</span></p>
+   <small>${esc(item.created_at?
+    new Date(item.created_at).toLocaleString("en-IN"):"")}</small>
+  </div>
+ `).join("");
+}
+
+loadEarnings().catch(error=>{
+ document.getElementById("notice").textContent=
+  "Error: "+error.message;
+});
+</script>
+
+</body>
+</html>
