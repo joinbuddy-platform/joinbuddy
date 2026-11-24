@@ -7,6 +7,7 @@
 <title>JoinBuddy - Partner Reports</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f4f5fb;color:#20243a}
@@ -26,8 +27,8 @@ th{background:#f1f0ff}
 #message{color:#666;padding:18px 0}
 </style>
 </head>
-<body>
 
+<body>
 <header>
 <h2>JoinBuddy Admin Reports</h2>
 <p>Partner-wise Work Performance</p>
@@ -40,31 +41,17 @@ th{background:#f1f0ff}
 </div>
 
 <div class="stats">
-<div class="stat">
-<small>Total Partners</small>
-<h2 id="totalPartners">0</h2>
-</div>
-<div class="stat">
-<small>Total Work</small>
-<h2 id="totalWork">0</h2>
-</div>
-<div class="stat">
-<small>Completed Work</small>
-<h2 id="completedWork">0</h2>
-</div>
-<div class="stat">
-<small>Pending Work</small>
-<h2 id="pendingWork">0</h2>
-</div>
-<div class="stat">
-<small>Rejected Work</small>
-<h2 id="rejectedWork">0</h2>
-</div>
+<div class="stat"><small>Total Approved Partners</small><h2 id="totalPartners">0</h2></div>
+<div class="stat"><small>Total Work</small><h2 id="totalWork">0</h2></div>
+<div class="stat"><small>Completed Work</small><h2 id="completedWork">0</h2></div>
+<div class="stat"><small>Pending Work</small><h2 id="pendingWork">0</h2></div>
+<div class="stat"><small>Rejected Work</small><h2 id="rejectedWork">0</h2></div>
 </div>
 
 <div class="card">
 <h3>Partner-wise Reports</h3>
 <div id="message">Loading reports...</div>
+
 <div class="table-wrap">
 <table id="reportTable" style="display:none">
 <thead>
@@ -88,6 +75,21 @@ Back to Dashboard
 
 <script>
 const client = window.supabaseClient;
+
+const pendingStatuses = [
+  "assigned",
+  "in_progress",
+  "not_called",
+  "call_not_received",
+  "interested",
+  "submitted"
+];
+
+const rejectedStatuses = [
+  "rejected",
+  "not_interested",
+  "invalid_number"
+];
 
 async function initialize(){
   if(!client){
@@ -117,7 +119,7 @@ async function initialize(){
     return;
   }
 
-  loadReports();
+  await loadReports();
 }
 
 async function loadReports(){
@@ -132,7 +134,8 @@ async function loadReports(){
   const [partnersResult,assignmentsResult] = await Promise.all([
     client.from("partner_profiles")
       .select("id,full_name")
-      .eq("role","partner"),
+      .eq("role","partner")
+      .eq("status","approved"),
 
     client.from("lead_assignments")
       .select("partner_user_id,status")
@@ -168,11 +171,15 @@ async function loadReports(){
     ).length;
 
     const pending = work.filter(
-      item => String(item.status).toLowerCase() === "assigned"
+      item => pendingStatuses.includes(
+        String(item.status).toLowerCase()
+      )
     ).length;
 
     const rejected = work.filter(
-      item => String(item.status).toLowerCase() === "rejected"
+      item => rejectedStatuses.includes(
+        String(item.status).toLowerCase()
+      )
     ).length;
 
     grandTotal += work.length;
@@ -204,7 +211,7 @@ async function loadReports(){
   document.getElementById("rejectedWork").textContent = grandRejected;
 
   if(partners.length === 0){
-    message.textContent = "No partners found.";
+    message.textContent = "No approved partners found.";
     return;
   }
 
