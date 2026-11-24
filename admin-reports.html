@@ -4,91 +4,262 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JoinBuddy - Partner Reports</title>
+<title>JoinBuddy | Admin Reports</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f4f5fb;color:#20243a}
-header{background:#171b3b;color:white;padding:20px}
-main{padding:20px;max-width:1100px;margin:auto}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-button{background:#5546d9;color:white;border:0;padding:11px 18px;border-radius:8px;cursor:pointer}
-.card{background:white;padding:18px;border-radius:14px;box-shadow:0 3px 15px #00000010;margin-top:18px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:15px}
-.stat{background:#f1f0ff;padding:15px;border-radius:10px}
-.stat small{color:#666}
-.stat h2{margin:8px 0 0;font-size:25px}
+:root{
+  --primary:#6254e7;
+  --dark:#171b3b;
+  --bg:#f5f6fc;
+  --muted:#777b91;
+}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--bg);
+  color:#20243a;
+}
+header{
+  position:relative;
+  overflow:hidden;
+  padding:28px 22px;
+  color:white;
+  background:linear-gradient(120deg,#171b3b,#5145c9,#8069ed);
+}
+header:after{
+  content:"";
+  position:absolute;
+  width:220px;height:220px;
+  right:-60px;top:-100px;
+  border-radius:50%;
+  background:#ffffff18;
+  animation:float 6s ease-in-out infinite;
+}
+header h2{margin:0;font-size:25px}
+header p{margin:9px 0 0;color:#e5e2ff}
+main{
+  max-width:1150px;
+  margin:auto;
+  padding:22px;
+  animation:fadeUp .6s ease both;
+}
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.top h2{margin:8px 0;font-size:23px}
+button{
+  border:0;
+  cursor:pointer;
+  font-weight:bold;
+  transition:transform .2s,box-shadow .2s,background .2s;
+}
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 7px 18px #5546d933;
+}
+button:active{transform:scale(.97)}
+.refresh{
+  color:white;
+  padding:12px 18px;
+  border-radius:10px;
+  background:linear-gradient(120deg,#5546d9,#8270f0);
+}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+  gap:14px;
+  margin-top:20px;
+}
+.stat{
+  position:relative;
+  overflow:hidden;
+  background:white;
+  padding:19px;
+  border-radius:16px;
+  box-shadow:0 5px 22px #20243a0c;
+  border:1px solid #eeeefa;
+  transition:transform .25s,box-shadow .25s;
+  animation:fadeUp .6s ease both;
+}
+.stat:hover{
+  transform:translateY(-5px);
+  box-shadow:0 12px 28px #20243a15;
+}
+.stat:after{
+  content:"";
+  position:absolute;
+  right:-25px;top:-25px;
+  width:90px;height:90px;
+  border-radius:50%;
+  background:#6254e710;
+}
+.stat small{color:var(--muted);font-size:13px}
+.stat h2{margin:12px 0 0;font-size:29px;color:#292c4b}
+.stat:nth-child(2){animation-delay:.08s}
+.stat:nth-child(3){animation-delay:.16s}
+.stat:nth-child(4){animation-delay:.24s}
+.stat:nth-child(5){animation-delay:.32s}
+.card{
+  background:white;
+  padding:20px;
+  border-radius:17px;
+  box-shadow:0 5px 22px #20243a0c;
+  border:1px solid #eeeefa;
+  margin-top:22px;
+}
+.card h3{margin:0 0 8px;font-size:19px}
+.subtitle{color:var(--muted);font-size:13px}
+#message{color:var(--muted);padding:18px 0}
 .table-wrap{overflow-x:auto;margin-top:15px}
 table{width:100%;border-collapse:collapse;min-width:650px}
-th,td{padding:13px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
-th{background:#f1f0ff}
-#message{color:#666;padding:18px 0}
+th,td{
+  padding:14px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+  font-size:13px;
+}
+th{
+  background:#f2f1ff;
+  color:#4c43a8;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+}
+tbody tr:hover{background:#fafaff}
+.partner-name{
+  background:#eeecff;
+  color:#5145c9;
+  padding:9px 12px;
+  border-radius:8px;
+}
+.detail-row td{background:#fafaff;padding:10px}
+.detail-box{
+  padding:16px;
+  border:1px solid #e8e5ff;
+  border-radius:12px;
+  background:white;
+  animation:fadeUp .35s ease both;
+}
+.detail-title{
+  font-weight:bold;
+  margin-bottom:12px;
+  color:#5145c9;
+}
+.status{
+  display:inline-block;
+  padding:6px 9px;
+  border-radius:20px;
+  background:#f0efff;
+  color:#5145c9;
+  font-size:12px;
+  font-weight:bold;
+}
+.back{
+  margin-top:22px;
+  padding:12px 18px;
+  color:#5145c9;
+  background:white;
+  border:1px solid #dedaff;
+  border-radius:10px;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(18px)}
+}
+@media(max-width:600px){
+  main{padding:15px}
+  header{padding:23px 17px}
+  header h2{font-size:22px}
+  .top h2{font-size:20px}
+  .card{padding:14px}
+  .stat{padding:15px}
+  .stat h2{font-size:25px}
+}
 </style>
 </head>
 
 <body>
 <header>
-<h2>JoinBuddy Admin Reports</h2>
-<p>Partner-wise Work Performance</p>
+  <h2>JoinBuddy Reports</h2>
+  <p>Admin Dashboard · Partner Work Performance</p>
 </header>
 
 <main>
-<div class="top">
-<h2>Reports Dashboard</h2>
-<button onclick="loadReports()">Refresh Reports</button>
-</div>
+  <div class="top">
+    <h2>Reports Dashboard</h2>
+    <button class="refresh" onclick="loadReports()">↻ Refresh Reports</button>
+  </div>
 
-<div class="stats">
-<div class="stat"><small>Total Approved Partners</small><h2 id="totalPartners">0</h2></div>
-<div class="stat"><small>Total Work</small><h2 id="totalWork">0</h2></div>
-<div class="stat"><small>Completed Work</small><h2 id="completedWork">0</h2></div>
-<div class="stat"><small>Pending Work</small><h2 id="pendingWork">0</h2></div>
-<div class="stat"><small>Rejected Work</small><h2 id="rejectedWork">0</h2></div>
-</div>
+  <div class="stats">
+    <div class="stat">
+      <small>Total Approved Partners</small>
+      <h2 id="totalPartners">0</h2>
+    </div>
+    <div class="stat">
+      <small>Total Work</small>
+      <h2 id="totalWork">0</h2>
+    </div>
+    <div class="stat">
+      <small>Completed Work</small>
+      <h2 id="completedWork">0</h2>
+    </div>
+    <div class="stat">
+      <small>Pending Work</small>
+      <h2 id="pendingWork">0</h2>
+    </div>
+    <div class="stat">
+      <small>Rejected Work</small>
+      <h2 id="rejectedWork">0</h2>
+    </div>
+  </div>
 
-<div class="card">
-<h3>Partner-wise Reports</h3>
-<div id="message">Loading reports...</div>
+  <div class="card">
+    <h3>Partner-wise Reports</h3>
+    <div class="subtitle">Select a partner name to view their assigned lead details.</div>
+    <div id="message">Loading reports...</div>
 
-<div class="table-wrap">
-<table id="reportTable" style="display:none">
-<thead>
-<tr>
-<th>Partner Name</th>
-<th>Total Work</th>
-<th>Completed</th>
-<th>Pending</th>
-<th>Rejected</th>
-</tr>
-</thead>
-<tbody id="reportBody"></tbody>
-</table>
-</div>
-</div>
+    <div class="table-wrap">
+      <table id="reportTable" style="display:none">
+        <thead>
+          <tr>
+            <th>Partner Name</th>
+            <th>Total Work</th>
+            <th>Completed</th>
+            <th>Pending</th>
+            <th>Rejected</th>
+          </tr>
+        </thead>
+        <tbody id="reportBody"></tbody>
+      </table>
+    </div>
+  </div>
 
-<button style="margin-top:20px" onclick="location.href='admin-panel.html'">
-Back to Dashboard
-</button>
+  <button class="back" onclick="location.href='admin-panel.html'">
+    ← Back to Dashboard
+  </button>
 </main>
 
 <script>
 const client = window.supabaseClient;
 
 const pendingStatuses = [
-  "assigned",
-  "in_progress",
-  "not_called",
-  "call_not_received",
-  "interested",
-  "submitted"
+  "assigned","in_progress","not_called",
+  "call_not_received","interested","submitted"
 ];
 
 const rejectedStatuses = [
-  "rejected",
-  "not_interested",
-  "invalid_number"
+  "rejected","not_interested","invalid_number"
 ];
 
 async function initialize(){
@@ -122,6 +293,82 @@ async function initialize(){
   await loadReports();
 }
 
+function makeCell(value){
+  const td = document.createElement("td");
+  td.textContent = value ?? "-";
+  return td;
+}
+
+function formatDate(value){
+  if(!value) return "-";
+  const date = new Date(value);
+  if(Number.isNaN(date.getTime())) return "-";
+  return date.toLocaleString("en-IN");
+}
+
+function createLeadDetails(work){
+  const box = document.createElement("div");
+  box.className = "detail-box";
+
+  const heading = document.createElement("div");
+  heading.className = "detail-title";
+  heading.textContent = "Assigned Lead Details (" + work.length + ")";
+  box.appendChild(heading);
+
+  if(work.length === 0){
+    box.append("Is Partner ko abhi koi Lead assign nahi hui hai.");
+    return box;
+  }
+
+  const wrap = document.createElement("div");
+  wrap.className = "table-wrap";
+
+  const table = document.createElement("table");
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Lead Name</th>
+        <th>Mobile</th>
+        <th>Email</th>
+        <th>City</th>
+        <th>Status</th>
+        <th>Assigned Date</th>
+      </tr>
+    </thead>
+  `;
+
+  const tbody = document.createElement("tbody");
+
+  work.forEach(item=>{
+    const lead = Array.isArray(item.leads)
+      ? item.leads[0]
+      : item.leads;
+
+    const tr = document.createElement("tr");
+
+    tr.appendChild(makeCell(lead?.lead_name || "Lead details unavailable"));
+    tr.appendChild(makeCell(lead?.phone));
+    tr.appendChild(makeCell(lead?.email));
+    tr.appendChild(makeCell(lead?.city));
+
+    const statusCell = document.createElement("td");
+    const status = document.createElement("span");
+    status.className = "status";
+    status.textContent = item.status || "-";
+    statusCell.appendChild(status);
+    tr.appendChild(statusCell);
+
+    tr.appendChild(makeCell(formatDate(item.assigned_at)));
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  box.appendChild(wrap);
+
+  return box;
+}
+
 async function loadReports(){
   const message = document.getElementById("message");
   const table = document.getElementById("reportTable");
@@ -138,7 +385,7 @@ async function loadReports(){
       .eq("status","approved"),
 
     client.from("lead_assignments")
-      .select("partner_user_id,status")
+      .select("partner_user_id,status,assigned_at,leads(lead_name,phone,email,city)")
   ]);
 
   if(partnersResult.error){
@@ -189,19 +436,34 @@ async function loadReports(){
 
     const tr = document.createElement("tr");
 
-    [
-      partner.full_name || "Unnamed Partner",
-      work.length,
-      completed,
-      pending,
-      rejected
-    ].forEach(value=>{
-      const td = document.createElement("td");
-      td.textContent = value;
-      tr.appendChild(td);
+    const nameCell = document.createElement("td");
+    const nameButton = document.createElement("button");
+    nameButton.className = "partner-name";
+    nameButton.textContent = partner.full_name || "Unnamed Partner";
+    nameCell.appendChild(nameButton);
+
+    tr.appendChild(nameCell);
+    tr.appendChild(makeCell(work.length));
+    tr.appendChild(makeCell(completed));
+    tr.appendChild(makeCell(pending));
+    tr.appendChild(makeCell(rejected));
+
+    const detailRow = document.createElement("tr");
+    detailRow.className = "detail-row";
+    detailRow.style.display = "none";
+
+    const detailCell = document.createElement("td");
+    detailCell.colSpan = 5;
+    detailCell.appendChild(createLeadDetails(work));
+    detailRow.appendChild(detailCell);
+
+    nameButton.addEventListener("click",()=>{
+      detailRow.style.display =
+        detailRow.style.display === "none" ? "table-row" : "none";
     });
 
     body.appendChild(tr);
+    body.appendChild(detailRow);
   });
 
   document.getElementById("totalPartners").textContent = partners.length;
