@@ -35,7 +35,7 @@ button{background:#173b70;color:white;border:0;padding:12px 20px;border-radius:7
 </div>
 
 <div class="grid">
-<div class="card" onclick="window.location.href='my-leads.html'" style="cursor:pointer">
+<div class="card" onclick="assignLeads()" style="cursor:pointer">
 <h3>📋 Lead लेना</h3>
 <p>अपने Assigned Leads देखें</p>
 </div>
@@ -94,7 +94,26 @@ async function logout(){
   await window.supabaseClient.auth.signOut();
   window.location.href="partner-login.html";
 }
+async function assignLeads() {
+    const client = window.supabaseClient;
+    const message = document.getElementById("message");
 
+    message.textContent = "Leads assign ho rahi hain...";
+
+    const { data, error } = await client.functions.invoke("assign-leads");
+
+    if (error) {
+        message.textContent = "Error: " + error.message;
+        return;
+    }
+
+    if (data && data.success) {
+        message.textContent = "Leads successfully assigned!";
+        window.location.href = "my-leads.html";
+    } else {
+        message.textContent = data?.error || "Assignment failed";
+    }
+}
 loadDashboard();
 </script>
 </body>
