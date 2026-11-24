@@ -4,231 +4,323 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JoinBuddy Admin Leads</title>
-
+<title>JoinBuddy | Admin Leads</title>
 <style>
 *{box-sizing:border-box}
-body{
-  font-family:Arial,sans-serif;
-  background:#f2f5fa;
-  margin:0;
-  color:#222;
-}
-header{
-  background:#173b70;
-  color:white;
-  padding:18px;
-}
-.container{
-  max-width:1100px;
-  margin:auto;
-  padding:16px;
-}
-.card{
-  background:white;
-  padding:18px;
-  margin:16px 0;
-  border-radius:10px;
-  box-shadow:0 2px 8px #0001;
-}
-.top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:10px;
-}
-button{
-  background:#173b70;
-  color:white;
-  border:0;
-  padding:11px 17px;
-  border-radius:6px;
-  cursor:pointer;
-}
-button:disabled{opacity:.5}
-.stats{
-  font-size:22px;
-  font-weight:bold;
-  color:#173b70;
-}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fc;color:#172033}
+header{background:linear-gradient(120deg,#142b55,#2865b5);color:white;padding:22px}
+header h2{margin:0 0 7px}
+header p{margin:0;color:#dce8ff}
+.container{max-width:1200px;margin:auto;padding:18px}
+.card{background:white;border-radius:15px;padding:18px;margin:15px 0;box-shadow:0 5px 22px #17203312}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.stats{display:flex;gap:12px;flex-wrap:wrap}
+.stat{background:#edf4ff;padding:15px 20px;border-radius:12px;min-width:140px}
+.stat strong{display:block;font-size:25px;color:#2059a6;margin-top:5px}
+input,select{padding:12px;border:1px solid #d5deeb;border-radius:9px;font-size:14px;outline:none;background:white}
+input:focus,select:focus{border-color:#2865b5}
+.search{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.search input{flex:1;min-width:180px}
+button{border:0;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:bold}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:#2059a6;color:white}
+.edit{background:#e7f0ff;color:#2059a6}
+.delete{background:#ffe9e9;color:#c52c36}
+.back{background:#edf1f7;color:#26364e}
 .table-wrap{overflow-x:auto}
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:850px;
-}
-th,td{
-  padding:12px;
-  border-bottom:1px solid #ddd;
-  text-align:left;
-  font-size:14px;
-}
-th{
-  background:#edf2fa;
-  color:#173b70;
-}
-.message{
-  padding:12px;
-  color:#555;
-}
-footer{
-  text-align:center;
-  padding:20px;
-}
+table{width:100%;border-collapse:collapse;min-width:1000px}
+th,td{padding:13px 11px;border-bottom:1px solid #edf0f5;text-align:left;font-size:13px}
+th{background:#f3f6fc;color:#29466e}
+tr:hover td{background:#fafcff}
+.message{padding:12px 0;color:#64748b}
+.actions{display:flex;gap:7px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#172b4d;color:white;padding:13px 18px;border-radius:10px;display:none;z-index:10;max-width:90%;text-align:center}
+footer{text-align:center;padding:20px}
+@media(max-width:600px){header{padding:18px}.container{padding:10px}.card{padding:13px}.stat{flex:1}}
 </style>
 </head>
-
 <body>
 
 <header>
-  <h2>JoinBuddy Admin</h2>
-  <p>Google Sheet Lead Management</p>
+<h2>JoinBuddy Admin</h2>
+<p>Lead Management Dashboard</p>
 </header>
 
 <div class="container">
-
-  <div class="card">
-    <div class="top">
-      <div>
-        <h3>📋 All Leads</h3>
-        <p>Google Sheet से Sync हुई सभी Leads</p>
-      </div>
-      <button id="refreshButton" onclick="loadLeads()">
-        Refresh Leads
-      </button>
-    </div>
-
-    <p>Total Leads: <span class="stats" id="totalLeads">0</span></p>
-    <p id="message" class="message">Loading Leads...</p>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Lead Name</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>City</th>
-            <th>Source</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody id="leadTable">
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <footer>
-    <button onclick="location.href='admin-panel.html'">
-      Back to Admin Panel
-    </button>
-  </footer>
-
+<div class="card">
+<div class="top">
+<div>
+<h3>📋 All Leads</h3>
+<p>Search, Filter, Edit और Delete Leads</p>
 </div>
+<button class="primary" id="refreshButton" onclick="loadLeads()">↻ Refresh Leads</button>
+</div>
+
+<div class="stats">
+<div class="stat">Total Leads<strong id="totalLeads">0</strong></div>
+<div class="stat">Filtered Leads<strong id="filteredLeads">0</strong></div>
+</div>
+
+<div class="search">
+<input id="searchInput" placeholder="Search name, phone, email, city..." oninput="renderLeads()">
+<select id="sourceFilter" onchange="renderLeads()">
+<option value="">All Sources</option>
+</select>
+</div>
+
+<p id="message" class="message">Loading Leads...</p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Lead Name</th>
+<th>Phone</th>
+<th>Email</th>
+<th>City</th>
+<th>Source</th>
+<th>Notes</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="leadTable"></tbody>
+</table>
+</div>
+</div>
+
+<footer>
+<button class="back" onclick="location.href='admin-panel.html'">← Back to Admin Panel</button>
+</footer>
+</div>
+
+<div id="toast"></div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 
 <script>
 const client = window.supabaseClient;
+let allLeads = [];
+
+function toast(message){
+ const box=document.getElementById("toast");
+ box.textContent=message;
+ box.style.display="block";
+ setTimeout(()=>box.style.display="none",3000);
+}
 
 async function initialize(){
+ if(!client){
+  document.getElementById("message").textContent="Supabase connection failed.";
+  return;
+ }
 
-  if(!client){
-    document.getElementById("message").textContent =
-      "Supabase connection failed.";
-    return;
-  }
+ const {data:{user},error}=await client.auth.getUser();
 
-  const {data:{user},error} = await client.auth.getUser();
+ if(error || !user){
+  location.href="admin-panel.html";
+  return;
+ }
 
-  if(error || !user){
-    location.href="admin-panel.html";
-    return;
-  }
+ const {data:profile,error:profileError}=await client
+  .from("partner_profiles")
+  .select("role,status")
+  .eq("id",user.id)
+  .single();
 
-  const {data:profile,error:profileError} = await client
-    .from("partner_profiles")
-    .select("role,status")
-    .eq("id",user.id)
-    .single();
+ if(profileError || !profile ||
+    profile.role!=="admin" ||
+    profile.status!=="approved"){
+  alert("Admin access required");
+  location.href="admin-panel.html";
+  return;
+ }
 
-  if(profileError || !profile ||
-     profile.role !== "admin" ||
-     profile.status !== "approved"){
-
-    alert("Admin access required");
-    location.href="admin-panel.html";
-    return;
-  }
-
-  await loadLeads();
+ await loadLeads();
 }
 
 async function loadLeads(){
+ const button=document.getElementById("refreshButton");
+ const message=document.getElementById("message");
 
-  const button = document.getElementById("refreshButton");
-  const message = document.getElementById("message");
-  const table = document.getElementById("leadTable");
+ button.disabled=true;
+ message.textContent="Loading Leads...";
 
-  button.disabled = true;
-  message.textContent = "Loading Leads...";
-  table.innerHTML = "";
+ const {data,error}=await client
+  .from("leads")
+  .select("id,source_key,lead_name,phone,email,city,source,notes")
+  .order("id",{ascending:false});
 
-  const {data,error} = await client
-    .from("leads")
-    .select("id,lead_name,phone,email,city,source,notes")
-    .order("id",{ascending:false});
+ button.disabled=false;
 
-  if(error){
-    message.textContent = "Error: " + error.message;
-    button.disabled = false;
-    return;
-  }
+ if(error){
+  message.textContent="Error: "+error.message;
+  return;
+ }
 
-  document.getElementById("totalLeads").textContent =
-    data ? data.length : 0;
-
-  if(!data || data.length === 0){
-    message.textContent = "No Leads Found.";
-    button.disabled = false;
-    return;
-  }
-
-  message.textContent = "Leads Successfully Loaded.";
-
-  data.forEach(lead => {
-
-    const row = document.createElement("tr");
-
-    const fields = [
-      lead.lead_name,
-      lead.phone,
-      lead.email,
-      lead.city,
-      lead.source,
-      lead.notes
-    ];
-
-    fields.forEach(value => {
-      const cell = document.createElement("td");
-      cell.textContent = value || "-";
-      row.appendChild(cell);
-    });
-
-    table.appendChild(row);
-  });
-
-  button.disabled = false;
+ allLeads=data||[];
+ updateSourceFilter();
+ renderLeads();
+ message.textContent=allLeads.length+" Leads Successfully Loaded.";
 }
 
-initialize().catch(error => {
-  document.getElementById("message").textContent =
-    "Error: " + error.message;
+function updateSourceFilter(){
+ const select=document.getElementById("sourceFilter");
+ const previous=select.value;
+ const sources=[...new Set(allLeads.map(x=>x.source).filter(Boolean))];
+
+ select.innerHTML='<option value="">All Sources</option>';
+
+ sources.forEach(source=>{
+  const option=document.createElement("option");
+  option.value=source;
+  option.textContent=source;
+  select.appendChild(option);
+ });
+
+ select.value=previous;
+}
+
+function renderLeads(){
+ const search=document.getElementById("searchInput").value.toLowerCase().trim();
+ const source=document.getElementById("sourceFilter").value;
+ const table=document.getElementById("leadTable");
+
+ table.innerHTML="";
+
+ const filtered=allLeads.filter(lead=>{
+  const text=[
+   lead.lead_name,lead.phone,lead.email,
+   lead.city,lead.source,lead.notes
+  ].join(" ").toLowerCase();
+
+  return text.includes(search) && (!source || lead.source===source);
+ });
+
+ document.getElementById("totalLeads").textContent=allLeads.length;
+ document.getElementById("filteredLeads").textContent=filtered.length;
+
+ if(!filtered.length){
+  const row=document.createElement("tr");
+  const cell=document.createElement("td");
+  cell.colSpan=7;
+  cell.textContent="No Leads Found";
+  row.appendChild(cell);
+  table.appendChild(row);
+  return;
+ }
+
+ filtered.forEach(lead=>{
+  const row=document.createElement("tr");
+
+  ["lead_name","phone","email","city","source","notes"].forEach(field=>{
+   const cell=document.createElement("td");
+   cell.textContent=lead[field]||"-";
+   row.appendChild(cell);
+  });
+
+  const actionCell=document.createElement("td");
+  const actions=document.createElement("div");
+  actions.className="actions";
+
+  const editButton=document.createElement("button");
+  editButton.className="edit";
+  editButton.textContent="Edit";
+  editButton.onclick=()=>editLead(lead);
+
+  const deleteButton=document.createElement("button");
+  deleteButton.className="delete";
+  deleteButton.textContent="Delete";
+  deleteButton.onclick=()=>deleteLead(lead);
+
+  actions.append(editButton,deleteButton);
+  actionCell.appendChild(actions);
+  row.appendChild(actionCell);
+  table.appendChild(row);
+ });
+}
+
+async function manageLead(payload){
+ const {data,error}=await client.functions.invoke(
+  "manage-sheet-lead",
+  {body:payload}
+ );
+
+ if(error) throw new Error(error.message||"Function request failed");
+
+ if(!data || data.success!==true){
+  throw new Error(data?.error||"Lead operation failed");
+ }
+
+ return data;
+}
+
+async function editLead(lead){
+ const fields=[
+  ["lead_name","Lead Name"],
+  ["phone","Phone"],
+  ["email","Email"],
+  ["city","City"],
+  ["source","Source"],
+  ["notes","Notes"]
+ ];
+
+ const updates={};
+
+ for(const [field,label] of fields){
+  const value=prompt("Edit "+label+":",lead[field]||"");
+  if(value===null) return;
+  updates[field]=value.trim();
+ }
+
+ if(!updates.lead_name || !updates.phone){
+  toast("Lead Name और Phone जरूरी हैं।");
+  return;
+ }
+
+ if(!confirm("क्या आप इस Lead को Update करना चाहते हैं?")) return;
+
+ try{
+  toast("Updating Lead...");
+
+  await manageLead({
+   action:"edit",
+   id:lead.id,
+   source_key:lead.source_key||"",
+   ...updates
+  });
+
+  toast("Lead Successfully Updated");
+  await loadLeads();
+
+ }catch(error){
+  toast("Update Error: "+error.message);
+ }
+}
+
+async function deleteLead(lead){
+ if(!confirm("क्या आप "+(lead.lead_name||"इस Lead")+" को Delete करना चाहते हैं?")) return;
+
+ try{
+  toast("Deleting Lead...");
+
+  await manageLead({
+   action:"delete",
+   id:lead.id,
+   source_key:lead.source_key||""
+  });
+
+  toast("Lead Successfully Deleted");
+  await loadLeads();
+
+ }catch(error){
+  toast("Delete Error: "+error.message);
+ }
+}
+
+initialize().catch(error=>{
+ document.getElementById("message").textContent="Error: "+error.message;
 });
 </script>
-
 </body>
 </html>
