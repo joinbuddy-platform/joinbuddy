@@ -5,19 +5,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Leads - JoinBuddy</title>
+
 <style>
 body{font-family:Arial;background:#f2f5fa;margin:0;color:#222}
 header{background:#173b70;color:white;padding:18px}
 .container{max-width:700px;margin:auto;padding:18px}
 .card{background:white;padding:18px;margin:14px 0;border-radius:10px;box-shadow:0 2px 8px #0001}
-button{background:#173b70;color:white;border:0;padding:11px 18px;border-radius:6px;cursor:pointer}
+button{background:#173b70;color:white;border:0;padding:11px 15px;border-radius:6px;cursor:pointer}
 select{width:100%;padding:11px;margin:8px 0;border:1px solid #ccc;border-radius:6px}
+.phone-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}
+.call-btn{background:#168447}
+.wa-btn{background:#128c7e}
 .back{margin-top:15px}
 .error{color:#c62828}
 .success{color:green}
 .muted{color:#666;font-size:14px}
+button:disabled{opacity:.6}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -26,31 +32,62 @@ select{width:100%;padding:11px;margin:8px 0;border:1px solid #ccc;border-radius:
 </header>
 
 <div class="container">
+
 <h3 id="welcome">Loading...</h3>
 <div id="message"></div>
 <div id="leads">Leads लोड हो रही हैं...</div>
-<button class="back" onclick="location.href='partner-dashboard.html'">Back to Dashboard</button>
+
+<button class="back" onclick="location.href='partner-dashboard.html'">
+Back to Dashboard
+</button>
+
 </div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 
 <script>
-const STATUS_OPTIONS = [
-  ["assigned","Assigned"],
-  ["not_called","Not Called"],
-  ["call_not_received","Call Not Received"],
-  ["in_progress","In Progress"],
-  ["interested","Interested"],
-  ["not_interested","Not Interested"],
-  ["invalid_number","Invalid Number"],
-  ["rejected","Rejected"],
-  ["submitted","Submitted"],
-  ["completed","Completed"]
+
+const client=window.supabaseClient;
+
+// WhatsApp Demo Message
+// बाद में इसी Text को बदल सकते हैं।
+const DEMO_MESSAGE =
+"Namaste! Main JoinBuddy se baat kar raha/rahi hoon. Aapke sambandh mein kuch jankari chahiye. Kripya reply karein. Dhanyavaad!";
+
+const STATUS_OPTIONS=[
+["assigned","Assigned"],
+["not_called","Not Called"],
+["call_not_received","Call Not Received"],
+["in_progress","In Progress"],
+["interested","Interested"],
+["not_interested","Not Interested"],
+["invalid_number","Invalid Number"],
+["rejected","Rejected"],
+["submitted","Submitted"],
+["completed","Completed"]
 ];
 
+function normalizePhone(phone){
+  let number=String(phone || "").replace(/\D/g,"");
+
+  if(number.length===10){
+    number="91"+number;
+  }else if(number.length===11 && number.startsWith("0")){
+    number="91"+number.substring(1);
+  }
+
+  return number;
+}
+
+function createText(tag,text){
+  const el=document.createElement(tag);
+  el.textContent=text || "-";
+  return el;
+}
+
 async function loadLeads(){
-  const client=window.supabaseClient;
+
   const leadsBox=document.getElementById("leads");
 
   const {data:{user},error:authError}=await client.auth.getUser();
@@ -67,7 +104,9 @@ async function loadLeads(){
     .single();
 
   if(profileError || !profile ||
-     profile.role!=="partner" || profile.status!=="approved"){
+     profile.role!=="partner" ||
+     profile.status!=="approved"){
+
     await client.auth.signOut();
     location.href="partner-login.html";
     return;
@@ -78,23 +117,25 @@ async function loadLeads(){
 
   const {data:assignments,error}=await client
     .from("lead_assignments")
-    .select("id,status,leads(lead_name,phone,email,city,source,notes)")
+    .select("id,status,assigned_at,leads(lead_name,phone,email,city,source,notes)")
     .eq("partner_user_id",user.id)
     .order("assigned_at",{ascending:false});
 
   if(error){
-    leadsBox.innerHTML='<p class="error">Error: '+escapeHTML(error.message)+'</p>';
+    leadsBox.textContent="Error: "+error.message;
+    leadsBox.className="error";
     return;
   }
 
   if(!assignments || assignments.length===0){
-    leadsBox.innerHTML='<div class="card">अभी आपको कोई Lead Assign नहीं हुई है।</div>';
+    leadsBox.textContent="अभी आपको कोई Lead Assign नहीं हुई है।";
     return;
   }
 
   leadsBox.innerHTML="";
 
   assignments.forEach(item=>{
+
     const lead=item.leads;
     if(!lead)return;
 
@@ -105,8 +146,39 @@ async function loadLeads(){
     title.textContent=lead.lead_name || "Name not available";
     card.appendChild(title);
 
+    const phoneRow=document.createElement("div");
+    phoneRow.className="phone-row";
+
+    const phoneText=document.createElement("strong");
+    phoneText.textContent="Phone: "+(lead.phone || "-");
+    phoneRow.appendChild(phoneText);
+
+    const number=normalizePhone(lead.phone);
+
+    if(number){
+
+      const call=document.createElement("button");
+      call.className="call-btn";
+      call.textContent="☎ Call";
+      call.onclick=()=>{
+        window.location.href="tel:"+number;
+      };
+      phoneRow.appendChild(call);
+
+      const whatsapp=document.createElement("button");
+      whatsapp.className="wa-btn";
+      whatsapp.textContent="☘ WhatsApp";
+      whatsapp.onclick=()=>{
+        const url="https://wa.me/"+number+
+          "?text="+encodeURIComponent(DEMO_MESSAGE);
+        window.open(url,"_blank");
+      };
+      phoneRow.appendChild(whatsapp);
+    }
+
+    card.appendChild(phoneRow);
+
     [
-      ["Phone",lead.phone],
       ["Email",lead.email],
       ["City",lead.city],
       ["Source",lead.source],
@@ -120,9 +192,9 @@ async function loadLeads(){
       card.appendChild(p);
     });
 
-    const label=document.createElement("label");
-    label.textContent="Work Status";
-    card.appendChild(label);
+    const statusLabel=document.createElement("label");
+    statusLabel.textContent="Work Status";
+    card.appendChild(statusLabel);
 
     const select=document.createElement("select");
     select.id="status-"+item.id;
@@ -131,30 +203,32 @@ async function loadLeads(){
       const option=document.createElement("option");
       option.value=value;
       option.textContent=text;
-      if(value===item.status) option.selected=true;
+      if(value===item.status)option.selected=true;
       select.appendChild(option);
     });
 
     card.appendChild(select);
 
-    const button=document.createElement("button");
-    button.textContent="Save Status";
-    button.onclick=()=>updateStatus(item.id,button);
-    card.appendChild(button);
+    const save=document.createElement("button");
+    save.textContent="Save Status";
+    save.onclick=()=>updateStatus(item.id,save);
+    card.appendChild(save);
 
     leadsBox.appendChild(card);
+
   });
 }
 
-async function updateStatus(assignmentId,button){
-  const client=window.supabaseClient;
-  const select=document.getElementById("status-"+assignmentId);
+async function updateStatus(id,button){
+
   const message=document.getElementById("message");
+  const select=document.getElementById("status-"+id);
 
   button.disabled=true;
   button.textContent="Saving...";
 
   try{
+
     const {data:{user},error:authError}=await client.auth.getUser();
 
     if(authError || !user){
@@ -165,31 +239,32 @@ async function updateStatus(assignmentId,button){
     const {error}=await client
       .from("lead_assignments")
       .update({status:select.value})
-      .eq("id",assignmentId)
+      .eq("id",id)
       .eq("partner_user_id",user.id);
 
-    if(error) throw error;
+    if(error)throw error;
 
     message.className="success";
     message.textContent="Status successfully updated!";
+
   }catch(error){
+
     message.className="error";
     message.textContent="Error: "+error.message;
+
   }finally{
+
     button.disabled=false;
     button.textContent="Save Status";
+
   }
 }
 
-function escapeHTML(value){
-  return String(value).replace(/[&<>"']/g,function(char){
-    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char];
-  });
-}
-
 loadLeads().catch(error=>{
-  document.getElementById("leads").textContent="Error: "+error.message;
+  document.getElementById("leads").textContent=
+    "Error: "+error.message;
 });
+
 </script>
 </body>
 </html>
