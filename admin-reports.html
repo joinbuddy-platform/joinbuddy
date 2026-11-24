@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoinBuddy | Admin Reports</title>
+
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 
@@ -58,7 +59,7 @@ button{
   border:0;
   cursor:pointer;
   font-weight:bold;
-  transition:transform .2s,box-shadow .2s,background .2s;
+  transition:transform .2s,box-shadow .2s;
 }
 button:hover{
   transform:translateY(-2px);
@@ -102,10 +103,6 @@ button:active{transform:scale(.97)}
 }
 .stat small{color:var(--muted);font-size:13px}
 .stat h2{margin:12px 0 0;font-size:29px;color:#292c4b}
-.stat:nth-child(2){animation-delay:.08s}
-.stat:nth-child(3){animation-delay:.16s}
-.stat:nth-child(4){animation-delay:.24s}
-.stat:nth-child(5){animation-delay:.32s}
 .card{
   background:white;
   padding:20px;
@@ -161,6 +158,19 @@ tbody tr:hover{background:#fafaff}
   font-size:12px;
   font-weight:bold;
 }
+.contact-link{
+  display:inline-block;
+  padding:8px 10px;
+  border-radius:7px;
+  text-decoration:none;
+  font-size:12px;
+  font-weight:bold;
+  margin:3px;
+  transition:transform .2s;
+}
+.contact-link:hover{transform:translateY(-2px)}
+.call-link{background:#e9f8ef;color:#168447}
+.whatsapp-link{background:#e5f8ed;color:#128c50}
 .back{
   margin-top:22px;
   padding:12px 18px;
@@ -333,6 +343,7 @@ function createLeadDetails(work){
         <th>City</th>
         <th>Status</th>
         <th>Assigned Date</th>
+        <th>Contact</th>
       </tr>
     </thead>
   `;
@@ -345,6 +356,15 @@ function createLeadDetails(work){
       : item.leads;
 
     const tr = document.createElement("tr");
+    const phone = String(lead?.phone || "").replace(/\D/g,"");
+
+    let whatsappNumber = phone;
+
+    if(phone.length === 10){
+      whatsappNumber = "91" + phone;
+    }else if(phone.length === 11 && phone.startsWith("0")){
+      whatsappNumber = "91" + phone.substring(1);
+    }
 
     tr.appendChild(makeCell(lead?.lead_name || "Lead details unavailable"));
     tr.appendChild(makeCell(lead?.phone));
@@ -359,6 +379,32 @@ function createLeadDetails(work){
     tr.appendChild(statusCell);
 
     tr.appendChild(makeCell(formatDate(item.assigned_at)));
+
+    const contactCell = document.createElement("td");
+
+    if(phone){
+      const callButton = document.createElement("a");
+      callButton.href = "tel:" + phone;
+      callButton.className = "contact-link call-link";
+      callButton.textContent = "📞 Call";
+      contactCell.appendChild(callButton);
+
+      const whatsappButton = document.createElement("a");
+      whatsappButton.href =
+        "https://wa.me/" + whatsappNumber +
+        "?text=" + encodeURIComponent(
+          "Namaste! Main JoinBuddy se baat kar raha/rahi hoon. Aapke sambandh mein kuch jankari chahiye. Kripya reply karein. Dhanyavaad!"
+        );
+      whatsappButton.target = "_blank";
+      whatsappButton.rel = "noopener noreferrer";
+      whatsappButton.className = "contact-link whatsapp-link";
+      whatsappButton.textContent = "🟢 WhatsApp";
+      contactCell.appendChild(whatsappButton);
+    }else{
+      contactCell.textContent = "No phone number";
+    }
+
+    tr.appendChild(contactCell);
     tbody.appendChild(tr);
   });
 
