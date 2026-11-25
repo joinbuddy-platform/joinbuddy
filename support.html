@@ -8,81 +8,222 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f5f7fb;
-  color:#222;
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#f3f6fc;
+ color:#1e293b;
 }
+
 header{
-  background:#172554;
-  color:white;
-  padding:22px 15px;
-  text-align:center;
+ background:linear-gradient(135deg,#102b59,#2563eb,#4f46e5);
+ color:white;
+ padding:22px 18px 35px;
+ border-radius:0 0 25px 25px;
+ animation:fadeDown .7s ease;
 }
-nav{
-  background:white;
-  padding:13px;
-  text-align:center;
+
+.topbar{
+ max-width:900px;
+ margin:auto;
 }
-nav a{
-  margin:7px;
-  color:#172554;
-  text-decoration:none;
-  font-weight:bold;
+
+.back{
+ display:inline-block;
+ color:white;
+ text-decoration:none;
+ background:#ffffff25;
+ padding:10px 15px;
+ border-radius:9px;
+ margin-bottom:20px;
+ font-size:14px;
+ transition:.3s;
 }
+
+.back:hover{
+ background:#ffffff45;
+ transform:translateX(-4px);
+}
+
+header h1{
+ margin:5px 0;
+ font-size:27px;
+}
+
+header p{
+ color:#dbeafe;
+ margin:8px 0 0;
+}
+
 main{
-  max-width:800px;
-  margin:25px auto;
-  padding:20px;
+ max-width:850px;
+ margin:28px auto;
+ padding:15px;
 }
-.box,.ticket{
-  background:white;
-  padding:20px;
-  border-radius:12px;
-  margin-bottom:18px;
-  box-shadow:0 2px 8px #00000010;
+
+.box{
+ background:white;
+ padding:23px;
+ border-radius:17px;
+ margin-bottom:22px;
+ box-shadow:0 5px 25px #0f172a0d;
+ border:1px solid #e8eef8;
+ animation:fadeUp .7s ease;
 }
-h2{color:#172554}
+
+h2{
+ color:#173b70;
+ margin-top:0;
+ font-size:21px;
+}
+
+.subtitle{
+ color:#64748b;
+ font-size:14px;
+ margin-top:-8px;
+ margin-bottom:20px;
+}
+
+label{
+ display:block;
+ font-weight:bold;
+ font-size:14px;
+ margin:15px 0 7px;
+}
+
 input,textarea,select{
-  width:100%;
-  padding:12px;
-  margin:8px 0 15px;
-  border:1px solid #cbd5e1;
-  border-radius:7px;
-  font-size:15px;
+ width:100%;
+ padding:14px;
+ border:1px solid #dbe3ef;
+ border-radius:10px;
+ font-size:15px;
+ background:#f8fafc;
+ outline:none;
+ transition:.3s;
 }
-textarea{min-height:110px;resize:vertical}
+
+input:focus,textarea:focus,select:focus{
+ border-color:#2563eb;
+ background:white;
+ box-shadow:0 0 0 3px #2563eb15;
+}
+
+textarea{
+ min-height:125px;
+ resize:vertical;
+}
+
 button{
-  background:#172554;
-  color:white;
-  border:0;
-  padding:12px 20px;
-  border-radius:7px;
-  cursor:pointer;
-  font-weight:bold;
+ width:100%;
+ padding:14px;
+ background:linear-gradient(135deg,#173b70,#2563eb);
+ color:white;
+ border:0;
+ border-radius:10px;
+ font-size:15px;
+ font-weight:bold;
+ cursor:pointer;
+ margin-top:15px;
+ transition:.3s;
 }
-button:disabled{opacity:.6}
+
+button:hover{
+ transform:translateY(-2px);
+ box-shadow:0 6px 16px #2563eb35;
+}
+
+button:disabled{
+ opacity:.6;
+ cursor:not-allowed;
+ transform:none;
+}
+
+#notice{
+ margin-top:15px;
+ font-size:14px;
+ font-weight:bold;
+ overflow-wrap:anywhere;
+}
+
+.ticket{
+ background:#f8faff;
+ border:1px solid #e2eaf6;
+ padding:18px;
+ border-radius:13px;
+ margin:14px 0;
+ animation:fadeUp .5s ease;
+ transition:.3s;
+}
+
+.ticket:hover{
+ transform:translateY(-3px);
+ box-shadow:0 6px 16px #0f172a0c;
+}
+
+.ticket h3{
+ color:#173b70;
+ margin:0 0 10px;
+}
+
+.ticket p{
+ line-height:1.6;
+ overflow-wrap:anywhere;
+}
+
 .status{
-  display:inline-block;
-  padding:5px 10px;
-  border-radius:20px;
-  background:#e0e7ff;
-  color:#172554;
-  font-size:13px;
+ display:inline-block;
+ padding:6px 12px;
+ border-radius:30px;
+ background:#dbeafe;
+ color:#1d4ed8;
+ font-size:12px;
+ font-weight:bold;
 }
+
 .reply{
-  background:#f1f5f9;
-  padding:12px;
-  border-radius:8px;
-  margin-top:12px;
+ background:#eef4ff;
+ border-left:4px solid #2563eb;
+ padding:13px;
+ border-radius:8px;
+ margin-top:14px;
 }
-#notice{margin:12px 0;font-weight:bold}
+
+.reply p{
+ margin-bottom:0;
+}
+
+.ticket small{
+ color:#64748b;
+}
+
+.empty{
+ text-align:center;
+ color:#64748b;
+ padding:20px;
+}
+
 footer{
-  text-align:center;
-  padding:20px;
-  background:#172554;
-  color:white;
+ text-align:center;
+ padding:25px;
+ color:#64748b;
+ font-size:13px;
+}
+
+@keyframes fadeUp{
+ from{opacity:0;transform:translateY(18px)}
+ to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes fadeDown{
+ from{opacity:0;transform:translateY(-15px)}
+ to{opacity:1;transform:translateY(0)}
+}
+
+@media(max-width:500px){
+ header h1{font-size:23px}
+ main{padding:12px}
+ .box{padding:18px}
 }
 </style>
 </head>
@@ -90,61 +231,81 @@ footer{
 <body>
 
 <header>
-  <h1>Partner Support</h1>
-  <p>JoinBuddy - Work Together. Grow Together.</p>
-</header>
+ <div class="topbar">
 
-<nav>
-  <a href="index.html">Home</a>
-  <a href="partner-dashboard.html">Dashboard</a>
-  <a href="partner-login.html">Login</a>
-</nav>
+  <a class="back" href="partner-dashboard.html">
+   ← Back to Dashboard
+  </a>
+
+  <h1>🎧 Partner Support</h1>
+  <p>We're here to help you. JoinBuddy Partner Assistance</p>
+
+ </div>
+</header>
 
 <main>
 
-  <div class="box">
-    <h2>Raise a Support Ticket</h2>
+ <div class="box">
 
-    <form id="ticketForm">
-      <label>Subject</label>
-      <select id="subject" required>
-        <option value="">Select Subject</option>
-        <option>Registration Support</option>
-        <option>Login Support</option>
-        <option>Work & Lead Support</option>
-        <option>Report Support</option>
-        <option>Earnings & Payment</option>
-        <option>Other Issue</option>
-      </select>
+  <h2>✉️ Raise a Support Ticket</h2>
+  <p class="subtitle">
+   Tell us your issue. Our Admin Team will assist you.
+  </p>
 
-      <label>Describe Your Issue</label>
-      <textarea id="message"
-        placeholder="Write your issue here..."
-        required></textarea>
+  <form id="ticketForm">
 
-      <button type="submit" id="submitBtn">
-        Submit Ticket
-      </button>
-    </form>
+   <label>Subject</label>
 
-    <div id="notice"></div>
+   <select id="subject" required>
+    <option value="">Select Subject</option>
+    <option>Registration Support</option>
+    <option>Login Support</option>
+    <option>Work & Lead Support</option>
+    <option>Report Support</option>
+    <option>Earnings & Payment</option>
+    <option>Other Issue</option>
+   </select>
+
+   <label>Describe Your Issue</label>
+
+   <textarea id="message"
+    placeholder="Write your issue here..."
+    required></textarea>
+
+   <button type="submit" id="submitBtn">
+    Submit Support Ticket →
+   </button>
+
+  </form>
+
+  <div id="notice"></div>
+
+ </div>
+
+ <div class="box">
+
+  <h2>📋 My Support Tickets</h2>
+  <p class="subtitle">
+   Track your previous support requests and Admin replies.
+  </p>
+
+  <div id="tickets">
+   Loading tickets...
   </div>
 
-  <div class="box">
-    <h2>My Support Tickets</h2>
-    <div id="tickets">Loading tickets...</div>
-  </div>
+ </div>
 
 </main>
 
 <footer>
-  <p>© 2026 JoinBuddy. All Rights Reserved.</p>
+ © 2026 JoinBuddy. All Rights Reserved.
 </footer>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 
 <script>
+
 const client = window.supabaseClient;
 
 const notice = document.getElementById("notice");
@@ -155,116 +316,140 @@ const submitBtn = document.getElementById("submitBtn");
 let currentUser = null;
 
 function escapeHTML(value){
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#039;"
-  })[char]);
+ return String(value ?? "").replace(/[&<>"']/g, char => ({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#039;"
+ })[char]);
 }
 
 async function initialize(){
 
-  if(!client){
-    notice.textContent = "Supabase connection not found.";
-    ticketsBox.textContent = "Configuration error.";
-    return;
-  }
+ if(!client){
+  notice.textContent="Supabase connection not found.";
+  ticketsBox.textContent="Configuration error.";
+  return;
+ }
 
-  const {data,error} = await client.auth.getSession();
+ const {data,error} = await client.auth.getSession();
 
-  if(error || !data.session){
-    window.location.href = "partner-login.html";
-    return;
-  }
+ if(error || !data.session){
+  window.location.href="partner-login.html";
+  return;
+ }
 
-  currentUser = data.session.user;
+ currentUser = data.session.user;
 
-  await loadTickets();
+ await loadTickets();
 }
 
 async function loadTickets(){
 
-  ticketsBox.textContent = "Loading...";
+ ticketsBox.textContent="Loading...";
 
-  const {data,error} = await client
-    .from("support_tickets")
-    .select("id,subject,message,status,created_at,admin_reply")
-    .eq("partner_user_id",currentUser.id)
-    .order("created_at",{ascending:false});
+ const {data,error} = await client
+  .from("support_tickets")
+  .select("id,subject,message,status,created_at,admin_reply")
+  .eq("partner_user_id",currentUser.id)
+  .order("created_at",{ascending:false});
 
-  if(error){
-    ticketsBox.textContent = "Error: " + error.message;
-    return;
-  }
+ if(error){
+  ticketsBox.textContent="Error: "+error.message;
+  return;
+ }
 
-  if(!data || data.length === 0){
-    ticketsBox.textContent = "You have not submitted any support tickets yet.";
-    return;
-  }
+ if(!data || data.length===0){
+  ticketsBox.innerHTML=
+   '<div class="empty">🎫 No support tickets yet.</div>';
+  return;
+ }
 
-  ticketsBox.innerHTML = data.map(ticket => `
-    <div class="ticket">
-      <h3>${escapeHTML(ticket.subject)}</h3>
-      <p>${escapeHTML(ticket.message)}</p>
-      <p>
-        <span class="status">${escapeHTML(ticket.status)}</span>
-      </p>
-      <small>
-        ${escapeHTML(new Date(ticket.created_at).toLocaleString())}
-      </small>
+ ticketsBox.innerHTML=data.map(ticket=>`
+  <div class="ticket">
 
-      <div class="reply">
-        <strong>Admin Reply:</strong>
-        <p>${ticket.admin_reply
-          ? escapeHTML(ticket.admin_reply)
-          : "Waiting for Admin reply."}</p>
-      </div>
-    </div>
-  `).join("");
+   <h3>${escapeHTML(ticket.subject)}</h3>
+
+   <p>${escapeHTML(ticket.message)}</p>
+
+   <p>
+    <span class="status">
+     ${escapeHTML(ticket.status)}
+    </span>
+   </p>
+
+   <small>
+    ${escapeHTML(new Date(ticket.created_at).toLocaleString("en-IN"))}
+   </small>
+
+   <div class="reply">
+    <strong>💬 Admin Reply</strong>
+    <p>${ticket.admin_reply
+     ? escapeHTML(ticket.admin_reply)
+     : "Waiting for Admin reply."}</p>
+   </div>
+
+  </div>
+ `).join("");
 }
 
 form.addEventListener("submit",async function(e){
 
-  e.preventDefault();
+ e.preventDefault();
 
-  if(!currentUser)return;
+ if(!currentUser)return;
 
-  const subject = document.getElementById("subject").value;
-  const message = document.getElementById("message").value.trim();
+ const subject=document.getElementById("subject").value;
+ const message=document.getElementById("message").value.trim();
 
-  if(!subject || !message){
-    notice.textContent = "Please fill all fields.";
-    return;
-  }
+ if(!subject || !message){
+  notice.textContent="Please fill all fields.";
+  return;
+ }
 
-  submitBtn.disabled = true;
-  notice.textContent = "Submitting ticket...";
+ submitBtn.disabled=true;
+ submitBtn.textContent="Submitting...";
+ notice.textContent="Submitting your ticket...";
 
-  const {error} = await client
-    .from("support_tickets")
-    .insert({
-      partner_user_id:currentUser.id,
-      subject:subject,
-      message:message,
-      status:"Open"
-    });
+ try{
 
-  submitBtn.disabled = false;
+  const {error}=await client
+   .from("support_tickets")
+   .insert({
+    partner_user_id:currentUser.id,
+    subject:subject,
+    message:message,
+    status:"open"
+   });
 
-  if(error){
-    notice.textContent = "Error: " + error.message;
-    return;
-  }
+  if(error)throw error;
 
-  notice.textContent = "Support Ticket Submitted Successfully!";
+  notice.style.color="green";
+  notice.textContent="✓ Support Ticket Submitted Successfully!";
+
   form.reset();
 
   await loadTickets();
+
+ }catch(error){
+
+  notice.style.color="#c62828";
+  notice.textContent="Error: "+error.message;
+
+ }finally{
+
+  submitBtn.disabled=false;
+  submitBtn.textContent="Submit Support Ticket →";
+
+ }
+
 });
 
-initialize();
+initialize().catch(error=>{
+ notice.textContent="Error: "+error.message;
+});
+
 </script>
 
 </body>
