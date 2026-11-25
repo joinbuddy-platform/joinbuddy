@@ -1,516 +1,333 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JoinBuddy | Admin Reports</title>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
-
+<title>Final Report - JoinBuddy</title>
 <style>
 *{box-sizing:border-box}
-:root{--primary:#6254e7;--dark:#171b3b;--bg:#f5f6fc;--muted:#777b91}
-body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#20243a}
-header{padding:22px;background:linear-gradient(120deg,#171b3b,#5145c9,#8069ed);color:white}
-.header-top{max-width:1200px;margin:auto;display:flex;align-items:center;gap:15px}
-.logo{width:44px;height:44px;border-radius:14px;background:white;color:#5145c9;display:grid;place-items:center;font-size:19px;font-weight:bold}
-header h2{margin:0;font-size:23px}
-header p{margin:6px 0 0;color:#e5e2ff;font-size:13px}
-main{max-width:1200px;margin:auto;padding:20px;animation:fade .4s ease}
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.top h2{font-size:22px}
-button,select{font-family:inherit}
-button{border:0;cursor:pointer;font-weight:bold;transition:.2s}
-button:hover{transform:translateY(-2px)}
-.back,.refresh{padding:11px 16px;border-radius:10px}
-.back{background:white;color:#5145c9;border:1px solid #dedaff}
-.refresh{background:linear-gradient(120deg,#5546d9,#8270f0);color:white}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:13px;margin-top:18px}
-.stat,.card{background:white;border:1px solid #eeeefa;border-radius:15px;box-shadow:0 5px 22px #20243a0c}
-.stat{padding:17px}
-.stat small{color:var(--muted)}
-.stat h2{margin:10px 0 0;font-size:27px}
-.card{padding:19px;margin-top:20px}
-.card h3{margin:0 0 7px}
-.subtitle{font-size:13px;color:var(--muted)}
-.table-wrap{overflow-x:auto;margin-top:14px}
-table{width:100%;border-collapse:collapse;min-width:700px}
-th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;font-size:13px;vertical-align:top}
-th{background:#f2f1ff;color:#4c43a8;font-size:11px;text-transform:uppercase}
-.status{display:inline-block;padding:6px 9px;border-radius:20px;font-size:11px;font-weight:bold}
-.pending{background:#fff3d9;color:#a66a00}
-.approved{background:#e5f8ed;color:#168447}
-.rejected{background:#ffe8e8;color:#c03939}
-.partner-name{background:#eeecff;color:#5145c9;padding:8px 10px;border-radius:8px}
-.detail-row td{background:#fafaff}
-.detail-box{padding:14px;background:white;border:1px solid #e8e5ff;border-radius:12px}
-.contact-link{display:inline-block;padding:7px 9px;border-radius:7px;text-decoration:none;font-size:11px;font-weight:bold;margin:2px}
-.call-link{background:#e9f8ef;color:#168447}
-.whatsapp-link{background:#e5f8ed;color:#128c50}
-.review-card{border:1px solid #e9e7fa;border-radius:13px;padding:15px;margin-top:13px;background:#fff}
-.review-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.review-head h4{margin:0 0 6px;color:#302c62}
-.report-text{background:#f8f7ff;padding:12px;border-radius:9px;margin:12px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}
-.review-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:13px}
-.review-controls select{padding:10px;border:1px solid #dedaff;border-radius:8px;background:white}
-.amount{font-weight:bold;color:#168447;font-size:16px}
-.approve{background:#168447;color:white;padding:10px 14px;border-radius:8px}
-.reject{background:#c03939;color:white;padding:10px 14px;border-radius:8px}
-button:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.empty{padding:20px;text-align:center;color:var(--muted)}
-#message,#reviewMessage{padding:12px 0;color:var(--muted);font-size:13px}
-.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:600px){main{padding:13px}.card{padding:13px}header{padding:18px}.stat{padding:13px}.stat h2{font-size:23px}}
+body{margin:0;font-family:Arial,sans-serif;background:#f2f5fa;color:#222}
+header{background:linear-gradient(135deg,#173b70,#2563eb);color:white;padding:20px}
+.back{display:inline-block;color:white;text-decoration:none;background:#ffffff25;padding:10px 14px;border-radius:8px;margin-bottom:12px}
+main{max-width:850px;margin:22px auto;padding:15px}
+.box{background:white;padding:22px;border-radius:14px;margin-bottom:18px;box-shadow:0 3px 12px #0001;animation:fadeUp .4s ease}
+h2{color:#173b70}
+header h2{color:white}
+.subtitle{color:#64748b;font-size:13px;line-height:1.6}
+.item{border:1px solid #e2e8f0;padding:16px;border-radius:11px;margin-top:15px;background:#fff}
+.lead-name{color:#173b70;font-size:17px;font-weight:bold}
+label{display:block;font-weight:bold;margin-top:13px;font-size:14px}
+textarea{width:100%;padding:12px;margin-top:7px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background:#f8fafc;min-height:85px;resize:vertical;font-family:Arial}
+textarea:focus{outline:none;border-color:#2563eb}
+button{background:#173b70;color:white;border:0;padding:13px 20px;border-radius:8px;margin-top:17px;cursor:pointer;font-weight:bold;width:100%}
+button:hover{background:#2563eb}
+button:disabled{opacity:.6;cursor:not-allowed}
+.status{display:inline-block;background:#e0e7ff;color:#173b70;padding:5px 10px;border-radius:15px;font-size:12px;font-weight:bold}
+#notice{margin-top:14px;font-weight:bold;overflow-wrap:anywhere;line-height:1.5}
+.empty{padding:18px;background:#f8fafc;border-radius:9px;color:#64748b;text-align:center;margin-top:14px}
+.report-history{border:1px solid #e2e8f0;padding:14px;border-radius:10px;margin-top:12px}
+.report-history p{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
+.batch-title{font-weight:bold;color:#173b70}
+small{color:#64748b}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:500px){main{padding:12px}.box{padding:16px}}
 </style>
 </head>
-
 <body>
 
 <header>
-  <div class="header-top">
-    <div class="logo">JB</div>
-    <div>
-      <h2>JoinBuddy Reports</h2>
-      <p>Admin Dashboard · Work & Performance Review</p>
-    </div>
-  </div>
+<a class="back" href="partner-dashboard.html">← Back to Dashboard</a>
+<h2 style="margin:5px 0">📤 Final Work Report</h2>
+<p>JoinBuddy Partner Portal</p>
 </header>
 
 <main>
+<div class="box">
+<h2>Submit Batch Report</h2>
+<div class="subtitle">
+आपको एक बार में अधिकतम 15 Assigned Leads की रिपोर्ट जमा करनी है।
+हर Lead की रिपोर्ट भरें और नीचे Submit All Reports दबाएँ।
+</div>
 
-  <div class="top">
-    <button class="back" onclick="location.href='admin-panel.html'">← Back to Dashboard</button>
-    <button class="refresh" onclick="refreshAll()">↻ Refresh</button>
-  </div>
+<div id="leadCount" class="subtitle" style="margin-top:14px">Loading assigned leads...</div>
 
-  <div class="stats">
-    <div class="stat"><small>Total Approved Partners</small><h2 id="totalPartners">0</h2></div>
-    <div class="stat"><small>Total Work</small><h2 id="totalWork">0</h2></div>
-    <div class="stat"><small>Completed Work</small><h2 id="completedWork">0</h2></div>
-    <div class="stat"><small>Pending Work</small><h2 id="pendingWork">0</h2></div>
-    <div class="stat"><small>Rejected Work</small><h2 id="rejectedWork">0</h2></div>
-  </div>
+<form id="batchForm">
+<div id="leadList"></div>
+<button id="submitBtn" type="submit" disabled>Submit All Reports</button>
+</form>
 
-  <!-- PARTNER WISE WORK -->
-  <div class="card">
-    <h3>Partner-wise Reports</h3>
-    <div class="subtitle">Select a partner name to view assigned lead details.</div>
-    <div id="message">Loading reports...</div>
-    <div class="table-wrap">
-      <table id="reportTable" style="display:none">
-        <thead>
-          <tr><th>Partner Name</th><th>Total Work</th><th>Completed</th><th>Pending</th><th>Rejected</th></tr>
-        </thead>
-        <tbody id="reportBody"></tbody>
-      </table>
-    </div>
-  </div>
+<div id="notice"></div>
+</div>
 
-  <!-- FINAL REPORT REVIEW -->
-  <div class="card">
-    <div class="section-title">
-      <div>
-        <h3>Final Report Review</h3>
-        <div class="subtitle">Review partner submissions and approve or reject them.</div>
-      </div>
-      <span class="status pending" id="pendingCount">0 Pending</span>
-    </div>
-    <div id="reviewMessage">Loading submitted reports...</div>
-    <div id="reviewList"></div>
-  </div>
-
+<div class="box">
+<h2>📋 My Submitted Reports</h2>
+<div class="subtitle">आपकी पुरानी Batch Reports और उनके Status.</div>
+<div id="myReports">Loading reports...</div>
+</div>
 </main>
 
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <script>
-const client = window.supabaseClient;
+const client=window.supabaseClient;
+const notice=document.getElementById("notice");
+const leadList=document.getElementById("leadList");
+const submitBtn=document.getElementById("submitBtn");
+let user=null;
+let activeAssignments=[];
 
-const pendingStatuses = [
-  "assigned","in_progress","not_called",
-  "call_not_received","interested","submitted"
-];
-
-const rejectedStatuses = [
-  "rejected","not_interested","invalid_number"
-];
-
-let allPartners = [];
-let allReports = [];
-
-async function initialize(){
-  if(!client){
-    document.getElementById("message").textContent="Supabase connection not found.";
-    return;
-  }
-
-  const {data:{user},error} = await client.auth.getUser();
-
-  if(error || !user){
-    location.href="admin-panel.html";
-    return;
-  }
-
-  const {data:profile,error:profileError} = await client
-    .from("partner_profiles")
-    .select("role,status")
-    .eq("id",user.id)
-    .single();
-
-  if(profileError || !profile || profile.role!=="admin" || profile.status!=="approved"){
-    alert("Admin access required");
-    location.href="admin-panel.html";
-    return;
-  }
-
-  await refreshAll();
-}
-
-function makeCell(value){
-  const td=document.createElement("td");
-  td.textContent=value ?? "-";
-  return td;
+function esc(value){
+ return String(value??"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+ }[c]));
 }
 
 function formatDate(value){
-  if(!value)return "-";
-  const date=new Date(value);
-  return Number.isNaN(date.getTime())?"-":date.toLocaleString("en-IN");
+ if(!value)return "-";
+ const d=new Date(value);
+ return Number.isNaN(d.getTime())?"-":d.toLocaleString("en-IN");
 }
 
-function createLeadDetails(work){
-  const box=document.createElement("div");
-  box.className="detail-box";
+async function init(){
+ if(!client){
+  notice.textContent="Supabase connection not found.";
+  return;
+ }
 
-  const heading=document.createElement("b");
-  heading.textContent="Assigned Lead Details ("+work.length+")";
-  box.appendChild(heading);
+ const {data,error}=await client.auth.getUser();
+ if(error||!data.user){
+  location.href="partner-login.html";
+  return;
+ }
 
-  if(!work.length){
-    box.append(" No leads assigned.");
-    return box;
-  }
+ user=data.user;
 
-  const wrap=document.createElement("div");
-  wrap.className="table-wrap";
-  const table=document.createElement("table");
-  table.innerHTML=`<thead><tr><th>Lead Name</th><th>Mobile</th><th>Email</th><th>City</th><th>Status</th><th>Assigned Date</th><th>Contact</th></tr></thead>`;
-  const tbody=document.createElement("tbody");
+ const {data:profile,error:profileError}=await client
+  .from("partner_profiles")
+  .select("role,status")
+  .eq("id",user.id)
+  .single();
 
-  work.forEach(item=>{
-    const lead=Array.isArray(item.leads)?item.leads[0]:item.leads;
-    const tr=document.createElement("tr");
-    const phone=String(lead?.phone||"").replace(/\D/g,"");
-    tr.appendChild(makeCell(lead?.lead_name));
-    tr.appendChild(makeCell(lead?.phone));
-    tr.appendChild(makeCell(lead?.email));
-    tr.appendChild(makeCell(lead?.city));
-    tr.appendChild(makeCell(item.status));
-    tr.appendChild(makeCell(formatDate(item.assigned_at)));
+ if(profileError||!profile||profile.role!=="partner"||profile.status!=="approved"){
+  notice.textContent="Approved Partner access required.";
+  return;
+ }
 
-    const contact=document.createElement("td");
-    if(phone){
-      const call=document.createElement("a");
-      call.href="tel:"+phone;
-      call.className="contact-link call-link";
-      call.textContent="Call";
-      contact.appendChild(call);
+ await loadAssignments();
+ await loadReports();
+}
 
-      const wa=document.createElement("a");
-      let waNumber=phone.length===10?"91"+phone:phone;
-      wa.href="https://wa.me/"+waNumber;
-      wa.target="_blank";
-      wa.rel="noopener noreferrer";
-      wa.className="contact-link whatsapp-link";
-      wa.textContent="WhatsApp";
-      contact.appendChild(wa);
-    }else contact.textContent="No phone";
-    tr.appendChild(contact);
-    tbody.appendChild(tr);
+async function loadAssignments(){
+ leadList.innerHTML="";
+ submitBtn.disabled=true;
+
+ document.getElementById("leadCount").textContent="Loading assigned leads...";
+
+ const {data:assignments,error}=await client
+  .from("lead_assignments")
+  .select("id,lead_id,assigned_at")
+  .eq("partner_user_id",user.id)
+  .order("assigned_at",{ascending:true});
+
+ if(error){
+  document.getElementById("leadCount").textContent="Assignment Error: "+error.message;
+  return;
+ }
+
+ const {data:oldReports,error:reportError}=await client
+  .from("reports")
+  .select("assignment_id")
+  .eq("partner_user_id",user.id);
+
+ if(reportError){
+  document.getElementById("leadCount").textContent="Reports Error: "+reportError.message;
+  return;
+ }
+
+ const alreadySubmitted=new Set((oldReports||[]).map(r=>r.assignment_id));
+
+ const available=(assignments||[])
+  .filter(a=>!alreadySubmitted.has(a.id))
+  .slice(0,15);
+
+ if(!available.length){
+  activeAssignments=[];
+  document.getElementById("leadCount").textContent="No new assigned leads available.";
+  leadList.innerHTML='<div class="empty">अभी कोई नई Lead Report के लिए उपलब्ध नहीं है।</div>';
+  return;
+ }
+
+ const leadIds=[...new Set(available.map(a=>a.lead_id).filter(Boolean))];
+
+ const {data:leads,error:leadError}=await client
+  .from("leads")
+  .select("id,lead_name")
+  .in("id",leadIds);
+
+ if(leadError){
+  document.getElementById("leadCount").textContent="Lead Error: "+leadError.message;
+  return;
+ }
+
+ const leadMap={};
+ (leads||[]).forEach(l=>leadMap[l.id]=l.lead_name);
+
+ activeAssignments=available;
+
+ document.getElementById("leadCount").textContent=
+  available.length+" Leads available for batch submission.";
+
+ leadList.innerHTML=available.map((a,index)=>`
+  <div class="item">
+   <div class="lead-name">Lead ${index+1}: ${esc(leadMap[a.lead_id]||"Lead Name Not Available")}</div>
+   <div class="subtitle">Assigned: ${esc(formatDate(a.assigned_at))}</div>
+
+   <label>Work Report *</label>
+   <textarea class="work-report" data-id="${esc(a.id)}"
+    placeholder="इस Lead पर आपने क्या काम किया? विवरण लिखें..." required></textarea>
+
+   <label>Result / Remarks</label>
+   <textarea class="work-result" data-id="${esc(a.id)}"
+    placeholder="Call Result या अन्य जानकारी लिखें..."></textarea>
+  </div>
+ `).join("");
+
+ submitBtn.disabled=false;
+}
+
+document.getElementById("batchForm").addEventListener("submit",async function(e){
+ e.preventDefault();
+
+ if(!activeAssignments.length)return;
+
+ const reports=activeAssignments.map(a=>{
+  const reportField=document.querySelector('.work-report[data-id="'+a.id+'"]');
+  const resultField=document.querySelector('.work-result[data-id="'+a.id+'"]');
+
+  return {
+   assignment_id:a.id,
+   report_text:reportField?.value.trim()||"",
+   result:resultField?.value.trim()||""
+  };
+ });
+
+ if(reports.some(r=>!r.report_text)){
+  notice.style.color="#c62828";
+  notice.textContent="हर Lead का Work Report भरना जरूरी है।";
+  return;
+ }
+
+ if(!confirm("क्या आप "+reports.length+" Leads की सभी Reports एक साथ Submit करना चाहते हैं?"))return;
+
+ submitBtn.disabled=true;
+ submitBtn.textContent="Submitting Batch...";
+ notice.style.color="#173b70";
+ notice.textContent="Submitting all reports...";
+
+ try{
+  const {data:batchId,error}=await client.rpc("submit_report_batch",{
+   p_reports:reports
   });
 
-  table.appendChild(tbody);
-  wrap.appendChild(table);
-  box.appendChild(wrap);
-  return box;
+  if(error)throw error;
+
+  notice.style.color="green";
+  notice.textContent="✓ सभी Reports सफलतापूर्वक Submit हो गईं। Batch ID: "+batchId;
+
+  await loadAssignments();
+  await loadReports();
+
+ }catch(error){
+  notice.style.color="#c62828";
+  notice.textContent="Submission Error: "+error.message;
+  submitBtn.disabled=false;
+  submitBtn.textContent="Submit All Reports";
+ }
+});
+
+async function loadReports(){
+ const box=document.getElementById("myReports");
+ box.textContent="Loading reports...";
+
+ const {data:reports,error}=await client
+  .from("reports")
+  .select("id,batch_id,assignment_id,report_text,result,status,submitted_at")
+  .eq("partner_user_id",user.id)
+  .order("submitted_at",{ascending:false});
+
+ if(error){
+  box.textContent="Error: "+error.message;
+  return;
+ }
+
+ if(!reports||!reports.length){
+  box.innerHTML='<div class="empty">No reports submitted yet.</div>';
+  return;
+ }
+
+ const assignmentIds=[...new Set(reports.map(r=>r.assignment_id).filter(Boolean))];
+
+ const {data:assignments,error:assignmentError}=await client
+  .from("lead_assignments")
+  .select("id,lead_id")
+  .in("id",assignmentIds);
+
+ if(assignmentError){
+  box.textContent="Lead details error: "+assignmentError.message;
+  return;
+ }
+
+ const leadIds=[...new Set((assignments||[]).map(a=>a.lead_id).filter(Boolean))];
+
+ const {data:leads,error:leadError}=await client
+  .from("leads")
+  .select("id,lead_name")
+  .in("id",leadIds);
+
+ if(leadError){
+  box.textContent="Lead names error: "+leadError.message;
+  return;
+ }
+
+ const assignmentMap={};
+ (assignments||[]).forEach(a=>assignmentMap[a.id]=a);
+
+ const leadMap={};
+ (leads||[]).forEach(l=>leadMap[l.id]=l.lead_name);
+
+ const groups={};
+ reports.forEach(r=>{
+  const key=r.batch_id||r.id;
+  if(!groups[key])groups[key]=[];
+  groups[key].push(r);
+ });
+
+ box.innerHTML=Object.entries(groups).map(([batchId,items])=>{
+  const first=items[0];
+  return `
+   <div class="report-history">
+    <div class="batch-title">📦 Batch Report · ${items.length} Leads</div>
+    <p><span class="status">${esc(first.status||"pending").toUpperCase()}</span></p>
+    <small>Submitted: ${esc(formatDate(first.submitted_at))}</small>
+    ${items.map(r=>{
+     const a=assignmentMap[r.assignment_id]||{};
+     return `
+      <div style="border-top:1px solid #eee;margin-top:12px;padding-top:10px">
+       <b>${esc(leadMap[a.lead_id]||"Lead")}</b>
+       <p><strong>Work Report:</strong><br>${esc(r.report_text)}</p>
+       <p><strong>Result:</strong><br>${esc(r.result||"-")}</p>
+      </div>
+     `;
+    }).join("")}
+   </div>
+  `;
+ }).join("");
 }
 
-async function loadWorkSummary(){
-  const message=document.getElementById("message");
-  const table=document.getElementById("reportTable");
-  const body=document.getElementById("reportBody");
-
-  message.textContent="Loading work summary...";
-  table.style.display="none";
-  body.replaceChildren();
-
-  const [partnersResult,assignmentsResult]=await Promise.all([
-    client.from("partner_profiles")
-      .select("id,full_name")
-      .eq("role","partner")
-      .eq("status","approved"),
-
-    client.from("lead_assignments")
-      .select("partner_user_id,status,assigned_at,leads(lead_name,phone,email,city)")
-  ]);
-
-  if(partnersResult.error){
-    message.textContent="Partners error: "+partnersResult.error.message;
-    return;
-  }
-  if(assignmentsResult.error){
-    message.textContent="Assignments error: "+assignmentsResult.error.message;
-    return;
-  }
-
-  const partners=partnersResult.data||[];
-  const assignments=assignmentsResult.data||[];
-
-  let total=0,completed=0,pending=0,rejected=0;
-
-  partners.forEach(partner=>{
-    const work=assignments.filter(x=>x.partner_user_id===partner.id);
-    const done=work.filter(x=>String(x.status).toLowerCase()==="completed").length;
-    const pend=work.filter(x=>pendingStatuses.includes(String(x.status).toLowerCase())).length;
-    const rej=work.filter(x=>rejectedStatuses.includes(String(x.status).toLowerCase())).length;
-
-    total+=work.length;
-    completed+=done;
-    pending+=pend;
-    rejected+=rej;
-
-    const tr=document.createElement("tr");
-    const nameCell=document.createElement("td");
-    const nameButton=document.createElement("button");
-    nameButton.className="partner-name";
-    nameButton.textContent=partner.full_name||"Unnamed Partner";
-    nameCell.appendChild(nameButton);
-    tr.appendChild(nameCell);
-    tr.appendChild(makeCell(work.length));
-    tr.appendChild(makeCell(done));
-    tr.appendChild(makeCell(pend));
-    tr.appendChild(makeCell(rej));
-
-    const detailRow=document.createElement("tr");
-    detailRow.className="detail-row";
-    detailRow.style.display="none";
-    const detailCell=document.createElement("td");
-    detailCell.colSpan=5;
-    detailCell.appendChild(createLeadDetails(work));
-    detailRow.appendChild(detailCell);
-
-    nameButton.addEventListener("click",()=>{
-      detailRow.style.display=detailRow.style.display==="none"?"table-row":"none";
-    });
-
-    body.appendChild(tr);
-    body.appendChild(detailRow);
-  });
-
-  document.getElementById("totalPartners").textContent=partners.length;
-  document.getElementById("totalWork").textContent=total;
-  document.getElementById("completedWork").textContent=completed;
-  document.getElementById("pendingWork").textContent=pending;
-  document.getElementById("rejectedWork").textContent=rejected;
-
-  message.textContent=partners.length?"Work summary loaded.":"No approved partners found.";
-  if(partners.length)table.style.display="table";
-}
-
-function statusBadge(status){
-  const span=document.createElement("span");
-  span.className="status "+(status==="approved"?"approved":status==="rejected"?"rejected":"pending");
-  span.textContent=String(status||"pending").toUpperCase();
-  return span;
-}
-
-async function loadReviewReports(){
-  const list=document.getElementById("reviewList");
-  const message=document.getElementById("reviewMessage");
-  list.replaceChildren();
-  message.textContent="Loading submitted reports...";
-
-  const {data:reports,error}=await client
-    .from("reports")
-    .select("id,assignment_id,partner_user_id,report_text,result,status,submitted_at,multiplier")
-    .order("submitted_at",{ascending:false});
-
-  if(error){
-    message.textContent="Reports error: "+error.message;
-    return;
-  }
-
-  allReports=reports||[];
-
-  const partnerIds=[...new Set(allReports.map(r=>r.partner_user_id).filter(Boolean))];
-  const assignmentIds=[...new Set(allReports.map(r=>r.assignment_id).filter(Boolean))];
-
-  let partnerMap={};
-  let assignmentMap={};
-
-  if(partnerIds.length){
-    const {data,error:partnerError}=await client
-      .from("partner_profiles")
-      .select("id,full_name,partner_id")
-      .in("id",partnerIds);
-
-    if(partnerError){
-      message.textContent="Partner details error: "+partnerError.message;
-      return;
-    }
-    (data||[]).forEach(p=>partnerMap[p.id]=p);
-  }
-
-  if(assignmentIds.length){
-    const {data,error:assignmentError}=await client
-      .from("lead_assignments")
-      .select("id,lead_id,leads(lead_name)")
-      .in("id",assignmentIds);
-
-    if(assignmentError){
-      message.textContent="Lead details error: "+assignmentError.message;
-      return;
-    }
-    (data||[]).forEach(a=>assignmentMap[a.id]=a);
-  }
-
-  const pendingReports=allReports.filter(r=>r.status==="pending");
-  document.getElementById("pendingCount").textContent=pendingReports.length+" Pending";
-
-  if(!allReports.length){
-    message.textContent="Abhi tak koi Final Report submit nahi hui hai.";
-    return;
-  }
-
-  message.textContent="Total submitted reports: "+allReports.length;
-
-  allReports.forEach(report=>{
-    const partner=partnerMap[report.partner_user_id]||{};
-    const assignment=assignmentMap[report.assignment_id]||{};
-    const lead=Array.isArray(assignment.leads)?assignment.leads[0]:assignment.leads;
-
-    const card=document.createElement("div");
-    card.className="review-card";
-
-    const head=document.createElement("div");
-    head.className="review-head";
-
-    const info=document.createElement("div");
-    const title=document.createElement("h4");
-    title.textContent=partner.full_name||"Partner";
-    const meta=document.createElement("div");
-    meta.className="subtitle";
-    meta.textContent="Partner ID: "+(partner.partner_id||"-")+" · Lead: "+(lead?.lead_name||"Lead")+
-      " · Submitted: "+formatDate(report.submitted_at);
-    info.append(title,meta);
-
-    head.append(info,statusBadge(report.status));
-    card.appendChild(head);
-
-    const reportText=document.createElement("div");
-    reportText.className="report-text";
-    reportText.textContent="Report: "+(report.report_text||"No report text")+
-      "\n\nResult: "+(report.result||"-");
-    card.appendChild(reportText);
-
-    if(report.status==="pending"){
-      const controls=document.createElement("div");
-      controls.className="review-controls";
-
-      const select=document.createElement("select");
-      select.setAttribute("aria-label","Select multiplier");
-
-      [1,2,3,4,5].forEach(n=>{
-        const option=document.createElement("option");
-        option.value=n;
-        option.textContent=n+"x Multiplier";
-        select.appendChild(option);
-      });
-
-      const amount=document.createElement("span");
-      amount.className="amount";
-      amount.textContent="Earning: ₹200";
-
-      select.addEventListener("change",()=>{
-        amount.textContent="Earning: ₹"+(200*Number(select.value));
-      });
-
-      const approve=document.createElement("button");
-      approve.className="approve";
-      approve.textContent="Approve";
-
-      approve.addEventListener("click",async()=>{
-        const multiplier=Number(select.value);
-        const earning=200*multiplier;
-        if(!confirm("Approve this report?\nPartner earning: ₹"+earning))return;
-
-        approve.disabled=true;
-        reject.disabled=true;
-        approve.textContent="Approving...";
-
-        const {error}=await client.rpc("admin_approve_report",{
-          p_report_id:report.id,
-          p_multiplier:multiplier
-        });
-
-        if(error){
-          alert("Approval failed: "+error.message);
-          approve.disabled=false;
-          reject.disabled=false;
-          approve.textContent="Approve";
-          return;
-        }
-
-        alert("Report approved. ₹"+earning+" added to Partner Earnings.");
-        await refreshAll();
-      });
-
-      const reject=document.createElement("button");
-      reject.className="reject";
-      reject.textContent="Reject";
-
-      reject.addEventListener("click",async()=>{
-        if(!confirm("Are you sure you want to reject this report?"))return;
-
-        approve.disabled=true;
-        reject.disabled=true;
-        reject.textContent="Rejecting...";
-
-        const {error}=await client.rpc("admin_reject_report",{
-          p_report_id:report.id
-        });
-
-        if(error){
-          alert("Rejection failed: "+error.message);
-          approve.disabled=false;
-          reject.disabled=false;
-          reject.textContent="Reject";
-          return;
-        }
-
-        alert("Report rejected successfully.");
-        await refreshAll();
-      });
-
-      controls.append(select,amount,approve,reject);
-      card.appendChild(controls);
-    }else if(report.status==="approved"){
-      const detail=document.createElement("div");
-      detail.className="subtitle";
-      detail.textContent="Approved · Multiplier: "+(report.multiplier||"-")+"x · Earning: ₹"+(200*(report.multiplier||0));
-      card.appendChild(detail);
-    }
-
-    list.appendChild(card);
-  });
-}
-
-async function refreshAll(){
-  await loadWorkSummary();
-  await loadReviewReports();
-}
-
-initialize();
+init().catch(error=>{
+ notice.textContent="Error: "+error.message;
+});
 </script>
 </body>
 </html>
+
