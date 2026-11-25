@@ -1,144 +1,322 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="JoinBuddy - Work Together, Grow Together">
-  <title>JoinBuddy - Partner Work Platform</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fb;
-      color: #172b45;
-    }
-    header {
-      background: #142d4e;
-      color: white;
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    nav { display: flex; gap: 15px; flex-wrap: wrap; }
-    nav a { color: white; text-decoration: none; font-size: 14px; }
-    .hero {
-      text-align: center;
-      padding: 85px 20px;
-      background: #142d4e;
-      color: white;
-    }
-    .hero h1 { font-size: 38px; margin-bottom: 15px; }
-    .hero p { line-height: 1.7; color: #dce8f5; }
-    .btn {
-      display: inline-block;
-      margin: 22px 6px 0;
-      padding: 13px 22px;
-      border-radius: 7px;
-      background: #20a477;
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .btn.secondary { background: white; color: #142d4e; }
-    .section {
-      max-width: 1000px;
-      margin: auto;
-      padding: 55px 20px;
-      text-align: center;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit,minmax(210px,1fr));
-      gap: 18px;
-      margin-top: 25px;
-    }
-    .card {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px #0000000c;
-    }
-    .card h3 { margin-bottom: 10px; }
-    .card p { color: #64748b; line-height: 1.6; }
-    footer {
-      background: #142d4e;
-      color: white;
-      padding: 30px 15px;
-      text-align: center;
-      line-height: 2;
-    }
-    footer a { color: white; margin: 0 8px; }
-    @media(max-width:600px) {
-      header { justify-content: center; }
-      .hero h1 { font-size: 29px; }
-      nav { justify-content: center; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="JoinBuddy - Work Together, Grow Together. Explore work opportunities and become a part of our partner network.">
+<title>JoinBuddy - Work Together, Grow Together</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:Arial,sans-serif;
+  background:#f5f6ff;
+  color:#172554;
+  overflow-x:hidden
+}
+:root{
+  --navy:#172554;
+  --blue:#3458db;
+  --purple:#7045d8;
+  --green:#16a477;
+  --light:#f5f6ff;
+}
+header{
+  position:sticky;top:0;z-index:100;
+  display:flex;justify-content:space-between;
+  align-items:center;flex-wrap:wrap;gap:15px;
+  padding:17px 7%;
+  color:white;
+  background:linear-gradient(110deg,#172554,#4734a6);
+  box-shadow:0 5px 20px #17255430
+}
+.logo{font-size:27px;font-weight:800;letter-spacing:.5px}
+.logo span{color:#a9baff}
+nav{display:flex;gap:22px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none;font-size:14px;transition:.3s}
+nav a:hover{color:#b9c7ff}
+.hero{
+  min-height:570px;padding:80px 7%;
+  display:grid;grid-template-columns:1.1fr .9fr;
+  align-items:center;gap:35px;
+  color:white;
+  background:linear-gradient(120deg,#172554,#3e3ca8,#7045d8);
+  position:relative;overflow:hidden
+}
+.hero:before,.hero:after{
+  content:"";position:absolute;border-radius:50%;
+  background:#ffffff12;animation:float 7s infinite ease-in-out
+}
+.hero:before{width:300px;height:300px;right:-70px;top:-90px}
+.hero:after{width:180px;height:180px;left:38%;bottom:-100px;animation-delay:2s}
+.hero-content,.hero-image{position:relative;z-index:2}
+.hero h1{font-size:48px;line-height:1.15;margin:18px 0}
+.hero p{font-size:17px;line-height:1.8;color:#e2e8ff}
+.eyebrow{
+  display:inline-block;padding:9px 15px;border-radius:30px;
+  background:#ffffff20;border:1px solid #ffffff40;
+  font-size:13px;font-weight:bold
+}
+.buttons{margin-top:25px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{
+  display:inline-block;padding:14px 22px;border-radius:9px;
+  background:#16a477;color:white;text-decoration:none;
+  font-weight:bold;transition:.3s
+}
+.btn:hover{transform:translateY(-4px);box-shadow:0 9px 20px #0003}
+.btn.white{background:white;color:#263477}
+.hero-image img{
+  width:100%;max-height:390px;object-fit:cover;
+  border-radius:25px;border:5px solid #ffffff35;
+  box-shadow:0 20px 50px #11182750;
+  animation:float 6s infinite ease-in-out
+}
+.section{padding:75px 7%;text-align:center}
+.section h2{font-size:32px;margin-bottom:14px;color:#172554}
+.subtitle{color:#64748b;line-height:1.7;max-width:700px;margin:0 auto}
+.cards{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;margin-top:35px
+}
+.card{
+  background:white;padding:27px 22px;border-radius:17px;
+  box-shadow:0 5px 25px #27356b0c;
+  border:1px solid #e8eaff;transition:.3s;
+  text-align:left
+}
+.card:hover{transform:translateY(-7px);box-shadow:0 14px 30px #27356b18}
+.card .symbol{
+  width:48px;height:48px;border-radius:13px;
+  display:grid;place-items:center;font-size:23px;
+  background:#eeedff;margin-bottom:17px
+}
+.card h3{margin-bottom:10px;color:#273477}
+.card p{color:#64748b;line-height:1.7;font-size:14px}
+.mission{
+  background:linear-gradient(120deg,#172554,#4039a5);
+  color:white;text-align:left;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:35px;align-items:center
+}
+.mission h2{color:white}
+.mission p{color:#e0e7ff;line-height:1.9;margin-top:15px}
+.mission img{
+  width:100%;height:330px;object-fit:cover;
+  border-radius:20px;border:4px solid #ffffff30
+}
+.badge-area{
+  display:flex;justify-content:center;gap:12px;
+  flex-wrap:wrap;margin-top:25px
+}
+.trust-badge{
+  padding:12px 18px;border-radius:12px;
+  background:#fff;border:1px solid #e1e5f5;
+  box-shadow:0 4px 15px #1725540c;
+  font-size:14px;font-weight:bold;color:#273477
+}
+.trust-badge span{margin-right:7px}
+.reviews-note{
+  margin:25px auto 0;padding:18px;
+  background:#fff;border:1px dashed #aab3d7;
+  border-radius:12px;color:#64748b;max-width:650px;
+  line-height:1.7
+}
+.contact{
+  background:linear-gradient(120deg,#edf0ff,#f7f3ff)
+}
+.contact-card{
+  max-width:750px;margin:30px auto 0;
+  background:white;padding:30px;border-radius:18px;
+  box-shadow:0 8px 30px #27356b12
+}
+.contact-row{
+  display:flex;align-items:center;gap:15px;
+  text-align:left;padding:17px 5px;
+  border-bottom:1px solid #edf0f7
+}
+.contact-row:last-child{border:0}
+.contact-icon{
+  width:46px;height:46px;border-radius:12px;
+  background:#eeedff;display:grid;place-items:center;
+  font-size:21px;flex-shrink:0
+}
+.contact-row small{display:block;color:#64748b;margin-bottom:5px}
+.contact-row a{color:#273477;text-decoration:none;font-weight:bold}
+.contact-row a:hover{text-decoration:underline}
+footer{
+  background:#142044;color:#dbe4ff;
+  text-align:center;padding:40px 15px;line-height:2
+}
+footer h3{color:white;font-size:25px}
+footer a{color:#dbe4ff;margin:0 9px;text-decoration:none;font-size:14px}
+footer a:hover{color:white;text-decoration:underline}
+footer .copyright{font-size:13px;color:#aab6d6;margin-top:15px}
+.whatsapp{
+  position:fixed;right:20px;bottom:20px;z-index:99;
+  background:#16a34a;color:white;text-decoration:none;
+  padding:15px 19px;border-radius:50px;font-weight:bold;
+  box-shadow:0 5px 20px #0003;transition:.3s
+}
+.whatsapp:hover{transform:scale(1.06)}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-13px)}
+}
+@keyframes appear{
+  from{opacity:0;transform:translateY(22px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.card{animation:appear .7s ease both}
+@media(max-width:800px){
+  .hero{grid-template-columns:1fr;padding:65px 6%;text-align:center}
+  .hero h1{font-size:36px}
+  .buttons{justify-content:center}
+  .hero-image img{max-height:270px}
+  .mission{grid-template-columns:1fr;text-align:center}
+  .mission img{height:250px}
+}
+@media(max-width:600px){
+  header{justify-content:center}
+  nav{justify-content:center;gap:13px}
+  nav a{font-size:13px}
+  .section{padding:55px 6%}
+  .section h2{font-size:27px}
+  .whatsapp{right:12px;bottom:12px}
+}
+</style>
 </head>
+
 <body>
 
 <header>
-  <h2>JoinBuddy</h2>
+  <div class="logo">Join<span>Buddy</span></div>
   <nav>
     <a href="#home">Home</a>
     <a href="#about">About</a>
-    <a href="#contact">Contact</a>
+    <a href="#mission">Our Mission</a>
+    <a href="#trust">Our Identity</a>
+    <a href="#contact">Contact Us</a>
     <a href="partner-login.html">Partner Login</a>
   </nav>
 </header>
 
 <section class="hero" id="home">
-  <h1>Build Your Future With JoinBuddy</h1>
-  <p>Work Together. Grow Together.</p>
-  <p>Explore work opportunities and become a part of our partner network.</p>
-  <a href="partner-registration.html" class="btn">Become a Partner</a>
-  <a href="partner-login.html" class="btn secondary">Partner Login</a>
+  <div class="hero-content">
+    <span class="eyebrow">🇮🇳 Opportunities for a Growing India</span>
+    <h1>Build Your Future With JoinBuddy</h1>
+    <p>Work Together. Grow Together.</p>
+    <p>Explore work opportunities, work with flexibility and become a part of our growing partner network.</p>
+    <div class="buttons">
+      <a href="partner-registration.html" class="btn">Become a Partner →</a>
+      <a href="partner-login.html" class="btn white">Partner Login</a>
+    </div>
+  </div>
+  <div class="hero-image">
+    <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1000&q=85" alt="Person working on a laptop">
+  </div>
 </section>
 
 <section class="section" id="about">
-  <h2>About JoinBuddy</h2>
-  <p style="margin-top:15px;line-height:1.8">
-    JoinBuddy is a partner work platform designed to connect
-    people with work opportunities and help them grow together.
-  </p>
+  <h2>Welcome to JoinBuddy</h2>
+  <p class="subtitle">A partner work platform focused on connecting people with work opportunities and helping them grow through collaboration.</p>
+
   <div class="cards">
     <div class="card">
+      <div class="symbol">📝</div>
       <h3>Easy Registration</h3>
-      <p>Apply to become a JoinBuddy partner.</p>
+      <p>Apply online to become a JoinBuddy partner and start your journey.</p>
     </div>
     <div class="card">
+      <div class="symbol">💻</div>
       <h3>Work Dashboard</h3>
-      <p>Access your assigned work and submit reports.</p>
+      <p>Access assigned work, manage tasks and submit your work reports.</p>
     </div>
     <div class="card">
-      <h3>Track Earnings</h3>
-      <p>View your work earnings and payment status.</p>
+      <div class="symbol">📊</div>
+      <h3>Track Your Earnings</h3>
+      <p>View your work earnings and payment status through your dashboard.</p>
+    </div>
+    <div class="card">
+      <div class="symbol">🤝</div>
+      <h3>Partner Support</h3>
+      <p>Connect with our support team for help with your partner journey.</p>
     </div>
   </div>
 </section>
 
-<section class="section" id="contact">
+<section class="section mission" id="mission">
+  <div>
+    <h2>Our Mission – Empowering India Through Work</h2>
+    <p>Our mission is to make work opportunities more accessible to people across India.</p>
+    <p>We believe that location should not always be a barrier to opportunity. Through digital collaboration and work-from-home opportunities, JoinBuddy aims to connect people with flexible work possibilities and support their professional growth.</p>
+    <p>We want to encourage digital participation, skill development and a culture of working together to grow together.</p>
+    <div class="buttons">
+      <a href="partner-registration.html" class="btn">Join Our Partner Network</a>
+    </div>
+  </div>
+  <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1000&q=85" alt="People collaborating as a team">
+</section>
+
+<section class="section" id="trust">
+  <h2>Our Identity</h2>
+  <p class="subtitle">An India-focused partner work platform built around digital collaboration and work opportunities.</p>
+  <div class="badge-area">
+    <div class="trust-badge"><span>🇮🇳</span>Made for India</div>
+    <div class="trust-badge"><span>📋</span>MSME Registered*</div>
+    <div class="trust-badge"><span>🏠</span>Work From Home Opportunities</div>
+    <div class="trust-badge"><span>🤝</span>Partner Network</div>
+  </div>
+  <p style="margin-top:18px;color:#64748b;font-size:12px">
+    *MSME Registered status should be displayed only while the registration is valid and verifiable. JoinBuddy is not claiming government approval or endorsement.
+  </p>
+</section>
+
+<section class="section" id="reviews">
+  <h2>Partner Feedback</h2>
+  <p class="subtitle">We value the experience and suggestions of every person who joins our partner network.</p>
+  <div class="reviews-note">
+    Partner reviews will be published here after receiving genuine feedback and permission from our partners.
+    We believe in sharing real experiences, not fabricated ratings or testimonials.
+  </div>
+</section>
+
+<section class="section contact" id="contact">
   <h2>Contact Us</h2>
-  <p style="margin-top:15px">For business and partner support, contact our team.</p>
-  <p style="margin-top:10px">Email: YOUR-BUSINESS-EMAIL</p>
+  <p class="subtitle">For business enquiries and partner support, contact the JoinBuddy team.</p>
+  <div class="contact-card">
+    <div class="contact-row">
+      <div class="contact-icon">✉️</div>
+      <div>
+        <small>Official Email</small>
+        <a href="mailto:joinbuddy0@gmail.com">joinbuddy0@gmail.com</a>
+      </div>
+    </div>
+    <div class="contact-row">
+      <div class="contact-icon">💬</div>
+      <div>
+        <small>Official WhatsApp (WhatsApp Only)</small>
+        <a href="https://wa.me/917307151326" target="_blank" rel="noopener">+91 7307151326</a>
+      </div>
+    </div>
+  </div>
 </section>
 
 <footer>
   <h3>JoinBuddy</h3>
   <p>Work Together. Grow Together.</p>
   <p>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-    <a href="terms.html">Terms</a>
-    <a href="privacy.html">Privacy</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+    <a href="terms.html">Terms & Conditions</a>
+    <a href="privacy.html">Privacy Policy</a>
     <a href="support.html">Support</a>
   </p>
-  <p>© 2026 JoinBuddy. All Rights Reserved.</p>
+  <p>Official Email: joinbuddy0@gmail.com</p>
+  <p class="copyright">© 2026 JoinBuddy. All Rights Reserved.</p>
 </footer>
+
+<a class="whatsapp" href="https://wa.me/917307151326" target="_blank" rel="noopener">💬 WhatsApp Us</a>
 
 </body>
 </html>
