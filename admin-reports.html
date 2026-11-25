@@ -5,259 +5,122 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoinBuddy | Admin Reports</title>
-
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 
 <style>
 *{box-sizing:border-box}
-:root{
-  --primary:#6254e7;
-  --dark:#171b3b;
-  --bg:#f5f6fc;
-  --muted:#777b91;
-}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:var(--bg);
-  color:#20243a;
-}
-header{
-  position:relative;
-  overflow:hidden;
-  padding:28px 22px;
-  color:white;
-  background:linear-gradient(120deg,#171b3b,#5145c9,#8069ed);
-}
-header:after{
-  content:"";
-  position:absolute;
-  width:220px;height:220px;
-  right:-60px;top:-100px;
-  border-radius:50%;
-  background:#ffffff18;
-  animation:float 6s ease-in-out infinite;
-}
-header h2{margin:0;font-size:25px}
-header p{margin:9px 0 0;color:#e5e2ff}
-main{
-  max-width:1150px;
-  margin:auto;
-  padding:22px;
-  animation:fadeUp .6s ease both;
-}
-.top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-}
-.top h2{margin:8px 0;font-size:23px}
-button{
-  border:0;
-  cursor:pointer;
-  font-weight:bold;
-  transition:transform .2s,box-shadow .2s;
-}
-button:hover{
-  transform:translateY(-2px);
-  box-shadow:0 7px 18px #5546d933;
-}
-button:active{transform:scale(.97)}
-.refresh{
-  color:white;
-  padding:12px 18px;
-  border-radius:10px;
-  background:linear-gradient(120deg,#5546d9,#8270f0);
-}
-.stats{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
-  gap:14px;
-  margin-top:20px;
-}
-.stat{
-  position:relative;
-  overflow:hidden;
-  background:white;
-  padding:19px;
-  border-radius:16px;
-  box-shadow:0 5px 22px #20243a0c;
-  border:1px solid #eeeefa;
-  transition:transform .25s,box-shadow .25s;
-  animation:fadeUp .6s ease both;
-}
-.stat:hover{
-  transform:translateY(-5px);
-  box-shadow:0 12px 28px #20243a15;
-}
-.stat:after{
-  content:"";
-  position:absolute;
-  right:-25px;top:-25px;
-  width:90px;height:90px;
-  border-radius:50%;
-  background:#6254e710;
-}
-.stat small{color:var(--muted);font-size:13px}
-.stat h2{margin:12px 0 0;font-size:29px;color:#292c4b}
-.card{
-  background:white;
-  padding:20px;
-  border-radius:17px;
-  box-shadow:0 5px 22px #20243a0c;
-  border:1px solid #eeeefa;
-  margin-top:22px;
-}
-.card h3{margin:0 0 8px;font-size:19px}
-.subtitle{color:var(--muted);font-size:13px}
-#message{color:var(--muted);padding:18px 0}
-.table-wrap{overflow-x:auto;margin-top:15px}
-table{width:100%;border-collapse:collapse;min-width:650px}
-th,td{
-  padding:14px;
-  border-bottom:1px solid #eee;
-  text-align:left;
-  font-size:13px;
-}
-th{
-  background:#f2f1ff;
-  color:#4c43a8;
-  font-size:12px;
-  text-transform:uppercase;
-  letter-spacing:.4px;
-}
-tbody tr:hover{background:#fafaff}
-.partner-name{
-  background:#eeecff;
-  color:#5145c9;
-  padding:9px 12px;
-  border-radius:8px;
-}
-.detail-row td{background:#fafaff;padding:10px}
-.detail-box{
-  padding:16px;
-  border:1px solid #e8e5ff;
-  border-radius:12px;
-  background:white;
-  animation:fadeUp .35s ease both;
-}
-.detail-title{
-  font-weight:bold;
-  margin-bottom:12px;
-  color:#5145c9;
-}
-.status{
-  display:inline-block;
-  padding:6px 9px;
-  border-radius:20px;
-  background:#f0efff;
-  color:#5145c9;
-  font-size:12px;
-  font-weight:bold;
-}
-.contact-link{
-  display:inline-block;
-  padding:8px 10px;
-  border-radius:7px;
-  text-decoration:none;
-  font-size:12px;
-  font-weight:bold;
-  margin:3px;
-  transition:transform .2s;
-}
-.contact-link:hover{transform:translateY(-2px)}
+:root{--primary:#6254e7;--dark:#171b3b;--bg:#f5f6fc;--muted:#777b91}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#20243a}
+header{padding:22px;background:linear-gradient(120deg,#171b3b,#5145c9,#8069ed);color:white}
+.header-top{max-width:1200px;margin:auto;display:flex;align-items:center;gap:15px}
+.logo{width:44px;height:44px;border-radius:14px;background:white;color:#5145c9;display:grid;place-items:center;font-size:19px;font-weight:bold}
+header h2{margin:0;font-size:23px}
+header p{margin:6px 0 0;color:#e5e2ff;font-size:13px}
+main{max-width:1200px;margin:auto;padding:20px;animation:fade .4s ease}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.top h2{font-size:22px}
+button,select{font-family:inherit}
+button{border:0;cursor:pointer;font-weight:bold;transition:.2s}
+button:hover{transform:translateY(-2px)}
+.back,.refresh{padding:11px 16px;border-radius:10px}
+.back{background:white;color:#5145c9;border:1px solid #dedaff}
+.refresh{background:linear-gradient(120deg,#5546d9,#8270f0);color:white}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:13px;margin-top:18px}
+.stat,.card{background:white;border:1px solid #eeeefa;border-radius:15px;box-shadow:0 5px 22px #20243a0c}
+.stat{padding:17px}
+.stat small{color:var(--muted)}
+.stat h2{margin:10px 0 0;font-size:27px}
+.card{padding:19px;margin-top:20px}
+.card h3{margin:0 0 7px}
+.subtitle{font-size:13px;color:var(--muted)}
+.table-wrap{overflow-x:auto;margin-top:14px}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;font-size:13px;vertical-align:top}
+th{background:#f2f1ff;color:#4c43a8;font-size:11px;text-transform:uppercase}
+.status{display:inline-block;padding:6px 9px;border-radius:20px;font-size:11px;font-weight:bold}
+.pending{background:#fff3d9;color:#a66a00}
+.approved{background:#e5f8ed;color:#168447}
+.rejected{background:#ffe8e8;color:#c03939}
+.partner-name{background:#eeecff;color:#5145c9;padding:8px 10px;border-radius:8px}
+.detail-row td{background:#fafaff}
+.detail-box{padding:14px;background:white;border:1px solid #e8e5ff;border-radius:12px}
+.contact-link{display:inline-block;padding:7px 9px;border-radius:7px;text-decoration:none;font-size:11px;font-weight:bold;margin:2px}
 .call-link{background:#e9f8ef;color:#168447}
 .whatsapp-link{background:#e5f8ed;color:#128c50}
-.back{
-  margin-top:22px;
-  padding:12px 18px;
-  color:#5145c9;
-  background:white;
-  border:1px solid #dedaff;
-  border-radius:10px;
-}
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(14px)}
-  to{opacity:1;transform:translateY(0)}
-}
-@keyframes float{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(18px)}
-}
-@media(max-width:600px){
-  main{padding:15px}
-  header{padding:23px 17px}
-  header h2{font-size:22px}
-  .top h2{font-size:20px}
-  .card{padding:14px}
-  .stat{padding:15px}
-  .stat h2{font-size:25px}
-}
+.review-card{border:1px solid #e9e7fa;border-radius:13px;padding:15px;margin-top:13px;background:#fff}
+.review-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.review-head h4{margin:0 0 6px;color:#302c62}
+.report-text{background:#f8f7ff;padding:12px;border-radius:9px;margin:12px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}
+.review-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:13px}
+.review-controls select{padding:10px;border:1px solid #dedaff;border-radius:8px;background:white}
+.amount{font-weight:bold;color:#168447;font-size:16px}
+.approve{background:#168447;color:white;padding:10px 14px;border-radius:8px}
+.reject{background:#c03939;color:white;padding:10px 14px;border-radius:8px}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.empty{padding:20px;text-align:center;color:var(--muted)}
+#message,#reviewMessage{padding:12px 0;color:var(--muted);font-size:13px}
+.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){main{padding:13px}.card{padding:13px}header{padding:18px}.stat{padding:13px}.stat h2{font-size:23px}}
 </style>
 </head>
 
 <body>
+
 <header>
-  <h2>JoinBuddy Reports</h2>
-  <p>Admin Dashboard · Partner Work Performance</p>
+  <div class="header-top">
+    <div class="logo">JB</div>
+    <div>
+      <h2>JoinBuddy Reports</h2>
+      <p>Admin Dashboard · Work & Performance Review</p>
+    </div>
+  </div>
 </header>
 
 <main>
+
   <div class="top">
-    <h2>Reports Dashboard</h2>
-    <button class="refresh" onclick="loadReports()">↻ Refresh Reports</button>
+    <button class="back" onclick="location.href='admin-panel.html'">← Back to Dashboard</button>
+    <button class="refresh" onclick="refreshAll()">↻ Refresh</button>
   </div>
 
   <div class="stats">
-    <div class="stat">
-      <small>Total Approved Partners</small>
-      <h2 id="totalPartners">0</h2>
-    </div>
-    <div class="stat">
-      <small>Total Work</small>
-      <h2 id="totalWork">0</h2>
-    </div>
-    <div class="stat">
-      <small>Completed Work</small>
-      <h2 id="completedWork">0</h2>
-    </div>
-    <div class="stat">
-      <small>Pending Work</small>
-      <h2 id="pendingWork">0</h2>
-    </div>
-    <div class="stat">
-      <small>Rejected Work</small>
-      <h2 id="rejectedWork">0</h2>
-    </div>
+    <div class="stat"><small>Total Approved Partners</small><h2 id="totalPartners">0</h2></div>
+    <div class="stat"><small>Total Work</small><h2 id="totalWork">0</h2></div>
+    <div class="stat"><small>Completed Work</small><h2 id="completedWork">0</h2></div>
+    <div class="stat"><small>Pending Work</small><h2 id="pendingWork">0</h2></div>
+    <div class="stat"><small>Rejected Work</small><h2 id="rejectedWork">0</h2></div>
   </div>
 
+  <!-- PARTNER WISE WORK -->
   <div class="card">
     <h3>Partner-wise Reports</h3>
-    <div class="subtitle">Select a partner name to view their assigned lead details.</div>
+    <div class="subtitle">Select a partner name to view assigned lead details.</div>
     <div id="message">Loading reports...</div>
-
     <div class="table-wrap">
       <table id="reportTable" style="display:none">
         <thead>
-          <tr>
-            <th>Partner Name</th>
-            <th>Total Work</th>
-            <th>Completed</th>
-            <th>Pending</th>
-            <th>Rejected</th>
-          </tr>
+          <tr><th>Partner Name</th><th>Total Work</th><th>Completed</th><th>Pending</th><th>Rejected</th></tr>
         </thead>
         <tbody id="reportBody"></tbody>
       </table>
     </div>
   </div>
 
-  <button class="back" onclick="location.href='admin-panel.html'">
-    ← Back to Dashboard
-  </button>
+  <!-- FINAL REPORT REVIEW -->
+  <div class="card">
+    <div class="section-title">
+      <div>
+        <h3>Final Report Review</h3>
+        <div class="subtitle">Review partner submissions and approve or reject them.</div>
+      </div>
+      <span class="status pending" id="pendingCount">0 Pending</span>
+    </div>
+    <div id="reviewMessage">Loading submitted reports...</div>
+    <div id="reviewList"></div>
+  </div>
+
 </main>
 
 <script>
@@ -272,17 +135,19 @@ const rejectedStatuses = [
   "rejected","not_interested","invalid_number"
 ];
 
+let allPartners = [];
+let allReports = [];
+
 async function initialize(){
   if(!client){
-    document.getElementById("message").textContent =
-      "Supabase connection not found.";
+    document.getElementById("message").textContent="Supabase connection not found.";
     return;
   }
 
   const {data:{user},error} = await client.auth.getUser();
 
   if(error || !user){
-    location.href = "admin-panel.html";
+    location.href="admin-panel.html";
     return;
   }
 
@@ -292,139 +157,94 @@ async function initialize(){
     .eq("id",user.id)
     .single();
 
-  if(profileError || !profile ||
-     profile.role !== "admin" ||
-     profile.status !== "approved"){
+  if(profileError || !profile || profile.role!=="admin" || profile.status!=="approved"){
     alert("Admin access required");
-    location.href = "admin-panel.html";
+    location.href="admin-panel.html";
     return;
   }
 
-  await loadReports();
+  await refreshAll();
 }
 
 function makeCell(value){
-  const td = document.createElement("td");
-  td.textContent = value ?? "-";
+  const td=document.createElement("td");
+  td.textContent=value ?? "-";
   return td;
 }
 
 function formatDate(value){
-  if(!value) return "-";
-  const date = new Date(value);
-  if(Number.isNaN(date.getTime())) return "-";
-  return date.toLocaleString("en-IN");
+  if(!value)return "-";
+  const date=new Date(value);
+  return Number.isNaN(date.getTime())?"-":date.toLocaleString("en-IN");
 }
 
 function createLeadDetails(work){
-  const box = document.createElement("div");
-  box.className = "detail-box";
+  const box=document.createElement("div");
+  box.className="detail-box";
 
-  const heading = document.createElement("div");
-  heading.className = "detail-title";
-  heading.textContent = "Assigned Lead Details (" + work.length + ")";
+  const heading=document.createElement("b");
+  heading.textContent="Assigned Lead Details ("+work.length+")";
   box.appendChild(heading);
 
-  if(work.length === 0){
-    box.append("Is Partner ko abhi koi Lead assign nahi hui hai.");
+  if(!work.length){
+    box.append(" No leads assigned.");
     return box;
   }
 
-  const wrap = document.createElement("div");
-  wrap.className = "table-wrap";
-
-  const table = document.createElement("table");
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th>Lead Name</th>
-        <th>Mobile</th>
-        <th>Email</th>
-        <th>City</th>
-        <th>Status</th>
-        <th>Assigned Date</th>
-        <th>Contact</th>
-      </tr>
-    </thead>
-  `;
-
-  const tbody = document.createElement("tbody");
+  const wrap=document.createElement("div");
+  wrap.className="table-wrap";
+  const table=document.createElement("table");
+  table.innerHTML=`<thead><tr><th>Lead Name</th><th>Mobile</th><th>Email</th><th>City</th><th>Status</th><th>Assigned Date</th><th>Contact</th></tr></thead>`;
+  const tbody=document.createElement("tbody");
 
   work.forEach(item=>{
-    const lead = Array.isArray(item.leads)
-      ? item.leads[0]
-      : item.leads;
-
-    const tr = document.createElement("tr");
-    const phone = String(lead?.phone || "").replace(/\D/g,"");
-
-    let whatsappNumber = phone;
-
-    if(phone.length === 10){
-      whatsappNumber = "91" + phone;
-    }else if(phone.length === 11 && phone.startsWith("0")){
-      whatsappNumber = "91" + phone.substring(1);
-    }
-
-    tr.appendChild(makeCell(lead?.lead_name || "Lead details unavailable"));
+    const lead=Array.isArray(item.leads)?item.leads[0]:item.leads;
+    const tr=document.createElement("tr");
+    const phone=String(lead?.phone||"").replace(/\D/g,"");
+    tr.appendChild(makeCell(lead?.lead_name));
     tr.appendChild(makeCell(lead?.phone));
     tr.appendChild(makeCell(lead?.email));
     tr.appendChild(makeCell(lead?.city));
-
-    const statusCell = document.createElement("td");
-    const status = document.createElement("span");
-    status.className = "status";
-    status.textContent = item.status || "-";
-    statusCell.appendChild(status);
-    tr.appendChild(statusCell);
-
+    tr.appendChild(makeCell(item.status));
     tr.appendChild(makeCell(formatDate(item.assigned_at)));
 
-    const contactCell = document.createElement("td");
-
+    const contact=document.createElement("td");
     if(phone){
-      const callButton = document.createElement("a");
-      callButton.href = "tel:" + phone;
-      callButton.className = "contact-link call-link";
-      callButton.textContent = "📞 Call";
-      contactCell.appendChild(callButton);
+      const call=document.createElement("a");
+      call.href="tel:"+phone;
+      call.className="contact-link call-link";
+      call.textContent="Call";
+      contact.appendChild(call);
 
-      const whatsappButton = document.createElement("a");
-      whatsappButton.href =
-        "https://wa.me/" + whatsappNumber +
-        "?text=" + encodeURIComponent(
-          "Namaste! Main JoinBuddy se baat kar raha/rahi hoon. Aapke sambandh mein kuch jankari chahiye. Kripya reply karein. Dhanyavaad!"
-        );
-      whatsappButton.target = "_blank";
-      whatsappButton.rel = "noopener noreferrer";
-      whatsappButton.className = "contact-link whatsapp-link";
-      whatsappButton.textContent = "🟢 WhatsApp";
-      contactCell.appendChild(whatsappButton);
-    }else{
-      contactCell.textContent = "No phone number";
-    }
-
-    tr.appendChild(contactCell);
+      const wa=document.createElement("a");
+      let waNumber=phone.length===10?"91"+phone:phone;
+      wa.href="https://wa.me/"+waNumber;
+      wa.target="_blank";
+      wa.rel="noopener noreferrer";
+      wa.className="contact-link whatsapp-link";
+      wa.textContent="WhatsApp";
+      contact.appendChild(wa);
+    }else contact.textContent="No phone";
+    tr.appendChild(contact);
     tbody.appendChild(tr);
   });
 
   table.appendChild(tbody);
   wrap.appendChild(table);
   box.appendChild(wrap);
-
   return box;
 }
 
-async function loadReports(){
-  const message = document.getElementById("message");
-  const table = document.getElementById("reportTable");
-  const body = document.getElementById("reportBody");
+async function loadWorkSummary(){
+  const message=document.getElementById("message");
+  const table=document.getElementById("reportTable");
+  const body=document.getElementById("reportBody");
 
-  message.textContent = "Loading reports...";
-  table.style.display = "none";
+  message.textContent="Loading work summary...";
+  table.style.display="none";
   body.replaceChildren();
 
-  const [partnersResult,assignmentsResult] = await Promise.all([
+  const [partnersResult,assignmentsResult]=await Promise.all([
     client.from("partner_profiles")
       .select("id,full_name")
       .eq("role","partner")
@@ -435,96 +255,259 @@ async function loadReports(){
   ]);
 
   if(partnersResult.error){
-    message.textContent =
-      "Partners load error: " + partnersResult.error.message;
+    message.textContent="Partners error: "+partnersResult.error.message;
     return;
   }
-
   if(assignmentsResult.error){
-    message.textContent =
-      "Assignments load error: " + assignmentsResult.error.message;
+    message.textContent="Assignments error: "+assignmentsResult.error.message;
     return;
   }
 
-  const partners = partnersResult.data || [];
-  const assignments = assignmentsResult.data || [];
+  const partners=partnersResult.data||[];
+  const assignments=assignmentsResult.data||[];
 
-  let grandTotal = 0;
-  let grandCompleted = 0;
-  let grandPending = 0;
-  let grandRejected = 0;
+  let total=0,completed=0,pending=0,rejected=0;
 
   partners.forEach(partner=>{
-    const work = assignments.filter(
-      item => item.partner_user_id === partner.id
-    );
+    const work=assignments.filter(x=>x.partner_user_id===partner.id);
+    const done=work.filter(x=>String(x.status).toLowerCase()==="completed").length;
+    const pend=work.filter(x=>pendingStatuses.includes(String(x.status).toLowerCase())).length;
+    const rej=work.filter(x=>rejectedStatuses.includes(String(x.status).toLowerCase())).length;
 
-    const completed = work.filter(
-      item => String(item.status).toLowerCase() === "completed"
-    ).length;
+    total+=work.length;
+    completed+=done;
+    pending+=pend;
+    rejected+=rej;
 
-    const pending = work.filter(
-      item => pendingStatuses.includes(
-        String(item.status).toLowerCase()
-      )
-    ).length;
-
-    const rejected = work.filter(
-      item => rejectedStatuses.includes(
-        String(item.status).toLowerCase()
-      )
-    ).length;
-
-    grandTotal += work.length;
-    grandCompleted += completed;
-    grandPending += pending;
-    grandRejected += rejected;
-
-    const tr = document.createElement("tr");
-
-    const nameCell = document.createElement("td");
-    const nameButton = document.createElement("button");
-    nameButton.className = "partner-name";
-    nameButton.textContent = partner.full_name || "Unnamed Partner";
+    const tr=document.createElement("tr");
+    const nameCell=document.createElement("td");
+    const nameButton=document.createElement("button");
+    nameButton.className="partner-name";
+    nameButton.textContent=partner.full_name||"Unnamed Partner";
     nameCell.appendChild(nameButton);
-
     tr.appendChild(nameCell);
     tr.appendChild(makeCell(work.length));
-    tr.appendChild(makeCell(completed));
-    tr.appendChild(makeCell(pending));
-    tr.appendChild(makeCell(rejected));
+    tr.appendChild(makeCell(done));
+    tr.appendChild(makeCell(pend));
+    tr.appendChild(makeCell(rej));
 
-    const detailRow = document.createElement("tr");
-    detailRow.className = "detail-row";
-    detailRow.style.display = "none";
-
-    const detailCell = document.createElement("td");
-    detailCell.colSpan = 5;
+    const detailRow=document.createElement("tr");
+    detailRow.className="detail-row";
+    detailRow.style.display="none";
+    const detailCell=document.createElement("td");
+    detailCell.colSpan=5;
     detailCell.appendChild(createLeadDetails(work));
     detailRow.appendChild(detailCell);
 
     nameButton.addEventListener("click",()=>{
-      detailRow.style.display =
-        detailRow.style.display === "none" ? "table-row" : "none";
+      detailRow.style.display=detailRow.style.display==="none"?"table-row":"none";
     });
 
     body.appendChild(tr);
     body.appendChild(detailRow);
   });
 
-  document.getElementById("totalPartners").textContent = partners.length;
-  document.getElementById("totalWork").textContent = grandTotal;
-  document.getElementById("completedWork").textContent = grandCompleted;
-  document.getElementById("pendingWork").textContent = grandPending;
-  document.getElementById("rejectedWork").textContent = grandRejected;
+  document.getElementById("totalPartners").textContent=partners.length;
+  document.getElementById("totalWork").textContent=total;
+  document.getElementById("completedWork").textContent=completed;
+  document.getElementById("pendingWork").textContent=pending;
+  document.getElementById("rejectedWork").textContent=rejected;
 
-  if(partners.length === 0){
-    message.textContent = "No approved partners found.";
+  message.textContent=partners.length?"Work summary loaded.":"No approved partners found.";
+  if(partners.length)table.style.display="table";
+}
+
+function statusBadge(status){
+  const span=document.createElement("span");
+  span.className="status "+(status==="approved"?"approved":status==="rejected"?"rejected":"pending");
+  span.textContent=String(status||"pending").toUpperCase();
+  return span;
+}
+
+async function loadReviewReports(){
+  const list=document.getElementById("reviewList");
+  const message=document.getElementById("reviewMessage");
+  list.replaceChildren();
+  message.textContent="Loading submitted reports...";
+
+  const {data:reports,error}=await client
+    .from("reports")
+    .select("id,assignment_id,partner_user_id,report_text,result,status,submitted_at,multiplier")
+    .order("submitted_at",{ascending:false});
+
+  if(error){
+    message.textContent="Reports error: "+error.message;
     return;
   }
 
-  message.textContent = "Reports loaded successfully.";
-  table.style.display = "table";
+  allReports=reports||[];
+
+  const partnerIds=[...new Set(allReports.map(r=>r.partner_user_id).filter(Boolean))];
+  const assignmentIds=[...new Set(allReports.map(r=>r.assignment_id).filter(Boolean))];
+
+  let partnerMap={};
+  let assignmentMap={};
+
+  if(partnerIds.length){
+    const {data,error:partnerError}=await client
+      .from("partner_profiles")
+      .select("id,full_name,partner_id")
+      .in("id",partnerIds);
+
+    if(partnerError){
+      message.textContent="Partner details error: "+partnerError.message;
+      return;
+    }
+    (data||[]).forEach(p=>partnerMap[p.id]=p);
+  }
+
+  if(assignmentIds.length){
+    const {data,error:assignmentError}=await client
+      .from("lead_assignments")
+      .select("id,lead_id,leads(lead_name)")
+      .in("id",assignmentIds);
+
+    if(assignmentError){
+      message.textContent="Lead details error: "+assignmentError.message;
+      return;
+    }
+    (data||[]).forEach(a=>assignmentMap[a.id]=a);
+  }
+
+  const pendingReports=allReports.filter(r=>r.status==="pending");
+  document.getElementById("pendingCount").textContent=pendingReports.length+" Pending";
+
+  if(!allReports.length){
+    message.textContent="Abhi tak koi Final Report submit nahi hui hai.";
+    return;
+  }
+
+  message.textContent="Total submitted reports: "+allReports.length;
+
+  allReports.forEach(report=>{
+    const partner=partnerMap[report.partner_user_id]||{};
+    const assignment=assignmentMap[report.assignment_id]||{};
+    const lead=Array.isArray(assignment.leads)?assignment.leads[0]:assignment.leads;
+
+    const card=document.createElement("div");
+    card.className="review-card";
+
+    const head=document.createElement("div");
+    head.className="review-head";
+
+    const info=document.createElement("div");
+    const title=document.createElement("h4");
+    title.textContent=partner.full_name||"Partner";
+    const meta=document.createElement("div");
+    meta.className="subtitle";
+    meta.textContent="Partner ID: "+(partner.partner_id||"-")+" · Lead: "+(lead?.lead_name||"Lead")+
+      " · Submitted: "+formatDate(report.submitted_at);
+    info.append(title,meta);
+
+    head.append(info,statusBadge(report.status));
+    card.appendChild(head);
+
+    const reportText=document.createElement("div");
+    reportText.className="report-text";
+    reportText.textContent="Report: "+(report.report_text||"No report text")+
+      "\n\nResult: "+(report.result||"-");
+    card.appendChild(reportText);
+
+    if(report.status==="pending"){
+      const controls=document.createElement("div");
+      controls.className="review-controls";
+
+      const select=document.createElement("select");
+      select.setAttribute("aria-label","Select multiplier");
+
+      [1,2,3,4,5].forEach(n=>{
+        const option=document.createElement("option");
+        option.value=n;
+        option.textContent=n+"x Multiplier";
+        select.appendChild(option);
+      });
+
+      const amount=document.createElement("span");
+      amount.className="amount";
+      amount.textContent="Earning: ₹200";
+
+      select.addEventListener("change",()=>{
+        amount.textContent="Earning: ₹"+(200*Number(select.value));
+      });
+
+      const approve=document.createElement("button");
+      approve.className="approve";
+      approve.textContent="Approve";
+
+      approve.addEventListener("click",async()=>{
+        const multiplier=Number(select.value);
+        const earning=200*multiplier;
+        if(!confirm("Approve this report?\nPartner earning: ₹"+earning))return;
+
+        approve.disabled=true;
+        reject.disabled=true;
+        approve.textContent="Approving...";
+
+        const {error}=await client.rpc("admin_approve_report",{
+          p_report_id:report.id,
+          p_multiplier:multiplier
+        });
+
+        if(error){
+          alert("Approval failed: "+error.message);
+          approve.disabled=false;
+          reject.disabled=false;
+          approve.textContent="Approve";
+          return;
+        }
+
+        alert("Report approved. ₹"+earning+" added to Partner Earnings.");
+        await refreshAll();
+      });
+
+      const reject=document.createElement("button");
+      reject.className="reject";
+      reject.textContent="Reject";
+
+      reject.addEventListener("click",async()=>{
+        if(!confirm("Are you sure you want to reject this report?"))return;
+
+        approve.disabled=true;
+        reject.disabled=true;
+        reject.textContent="Rejecting...";
+
+        const {error}=await client.rpc("admin_reject_report",{
+          p_report_id:report.id
+        });
+
+        if(error){
+          alert("Rejection failed: "+error.message);
+          approve.disabled=false;
+          reject.disabled=false;
+          reject.textContent="Reject";
+          return;
+        }
+
+        alert("Report rejected successfully.");
+        await refreshAll();
+      });
+
+      controls.append(select,amount,approve,reject);
+      card.appendChild(controls);
+    }else if(report.status==="approved"){
+      const detail=document.createElement("div");
+      detail.className="subtitle";
+      detail.textContent="Approved · Multiplier: "+(report.multiplier||"-")+"x · Earning: ₹"+(200*(report.multiplier||0));
+      card.appendChild(detail);
+    }
+
+    list.appendChild(card);
+  });
+}
+
+async function refreshAll(){
+  await loadWorkSummary();
+  await loadReviewReports();
 }
 
 initialize();
