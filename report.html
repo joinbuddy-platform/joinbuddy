@@ -5,48 +5,141 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Final Report - JoinBuddy</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#f2f5fa;color:#222}
-header{background:#173b70;color:white;padding:18px}
-.back{display:inline-block;color:white;text-decoration:none;background:#ffffff25;padding:9px 13px;border-radius:7px;margin-bottom:12px}
-main{max-width:750px;margin:22px auto;padding:15px}
-.box{background:white;padding:20px;border-radius:12px;margin-bottom:18px;box-shadow:0 2px 8px #0001}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#f2f5fa;
+ color:#222;
+}
+header{
+ background:linear-gradient(135deg,#173b70,#2563eb);
+ color:white;
+ padding:20px;
+}
+.back{
+ display:inline-block;
+ color:white;
+ text-decoration:none;
+ background:#ffffff25;
+ padding:10px 14px;
+ border-radius:8px;
+ margin-bottom:12px;
+}
+main{
+ max-width:750px;
+ margin:22px auto;
+ padding:15px;
+}
+.box{
+ background:white;
+ padding:22px;
+ border-radius:14px;
+ margin-bottom:18px;
+ box-shadow:0 3px 12px #0001;
+ animation:fadeUp .5s ease;
+}
 h2{color:#173b70}
-label{display:block;font-weight:bold;margin-top:12px}
-input,textarea,select{width:100%;padding:12px;margin-top:7px;border:1px solid #cbd5e1;border-radius:7px;font-size:15px}
-textarea{min-height:100px}
-button{background:#173b70;color:white;border:0;padding:12px 20px;border-radius:7px;margin-top:15px;cursor:pointer}
-button:disabled{opacity:.6}
-.item{border:1px solid #e2e8f0;padding:14px;border-radius:9px;margin-top:12px}
-.status{background:#e0e7ff;color:#173b70;padding:5px 9px;border-radius:15px;font-size:13px}
-#notice{margin-top:12px;font-weight:bold;overflow-wrap:anywhere}
+header h2{color:white}
+label{
+ display:block;
+ font-weight:bold;
+ margin-top:15px;
+}
+input,textarea,select{
+ width:100%;
+ padding:13px;
+ margin-top:7px;
+ border:1px solid #cbd5e1;
+ border-radius:8px;
+ font-size:15px;
+ background:#f8fafc;
+}
+textarea{min-height:100px;resize:vertical}
+select:focus,textarea:focus{
+ outline:none;
+ border-color:#2563eb;
+}
+button{
+ background:#173b70;
+ color:white;
+ border:0;
+ padding:13px 20px;
+ border-radius:8px;
+ margin-top:17px;
+ cursor:pointer;
+ font-weight:bold;
+}
+button:hover{background:#2563eb}
+button:disabled{opacity:.6;cursor:not-allowed}
+.item{
+ border:1px solid #e2e8f0;
+ padding:16px;
+ border-radius:10px;
+ margin-top:13px;
+ background:#fff;
+}
+.lead-name{
+ color:#173b70;
+ font-size:17px;
+ font-weight:bold;
+}
+.status{
+ background:#e0e7ff;
+ color:#173b70;
+ padding:5px 10px;
+ border-radius:15px;
+ font-size:13px;
+}
+#notice{
+ margin-top:12px;
+ font-weight:bold;
+ overflow-wrap:anywhere;
+}
+small{color:#64748b}
+@keyframes fadeUp{
+ from{opacity:0;transform:translateY(12px)}
+ to{opacity:1;transform:translateY(0)}
+}
 </style>
 </head>
+
 <body>
+
 <header>
 <a class="back" href="partner-dashboard.html">← Back to Dashboard</a>
-<h2 style="color:white;margin:5px 0">Final Work Report</h2>
+<h2 style="margin:5px 0">📤 Final Work Report</h2>
 <p>JoinBuddy Partner Portal</p>
 </header>
 
 <main>
+
 <div class="box">
 <h2>Submit Final Report</h2>
+
 <form id="reportForm">
+
 <label>Select Assigned Lead</label>
 <select id="assignment" required>
 <option value="">Loading assigned leads...</option>
 </select>
 
 <label>Work Report</label>
-<textarea id="reportText" required placeholder="Describe the work completed..."></textarea>
+<textarea id="reportText" required
+placeholder="Describe the work completed..."></textarea>
 
 <label>Result / Remarks</label>
-<textarea id="resultText" placeholder="Enter call result or remarks..."></textarea>
+<textarea id="resultText"
+placeholder="Enter call result or remarks..."></textarea>
 
-<button id="submitBtn" type="submit">Submit Report</button>
+<button id="submitBtn" type="submit">
+Submit Report
+</button>
+
 </form>
+
 <div id="notice"></div>
 </div>
 
@@ -54,30 +147,59 @@ button:disabled{opacity:.6}
 <h2>My Submitted Reports</h2>
 <div id="myReports">Loading reports...</div>
 </div>
+
 </main>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+
 <script>
+
 const client=window.supabaseClient;
+
 const notice=document.getElementById("notice");
 const assignmentSelect=document.getElementById("assignment");
+
 let user=null;
+let assignmentMap={};
 
 function esc(v){
- return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+ return String(v??"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#039;"
+ }[c]));
 }
 
 async function init(){
- if(!client){notice.textContent="Supabase connection not found.";return;}
+
+ if(!client){
+  notice.textContent="Supabase connection not found.";
+  return;
+ }
+
  const {data,error}=await client.auth.getUser();
- if(error||!data.user){location.href="partner-login.html";return;}
+
+ if(error||!data.user){
+  location.href="partner-login.html";
+  return;
+ }
+
  user=data.user;
 
- const {data:profile,error:pe}=await client.from("partner_profiles")
- .select("role,status").eq("id",user.id).single();
- if(pe||!profile||profile.role!=="partner"||profile.status!=="approved"){
-  notice.textContent="Approved Partner access required.";return;
+ const {data:profile,error:pe}=await client
+ .from("partner_profiles")
+ .select("role,status")
+ .eq("id",user.id)
+ .single();
+
+ if(pe||!profile||
+    profile.role!=="partner"||
+    profile.status!=="approved"){
+  notice.textContent="Approved Partner access required.";
+  return;
  }
 
  await loadAssignments();
@@ -85,74 +207,179 @@ async function init(){
 }
 
 async function loadAssignments(){
- const {data,error}=await client.from("lead_assignments")
- .select("*").eq("partner_user_id",user.id);
+
+ assignmentSelect.innerHTML=
+  '<option value="">Loading assigned leads...</option>';
+
+ const {data:assignments,error}=await client
+  .from("lead_assignments")
+  .select("id,lead_id,status")
+  .eq("partner_user_id",user.id);
 
  if(error){
-  assignmentSelect.innerHTML='<option value="">Could not load leads</option>';
+  assignmentSelect.innerHTML=
+   '<option value="">Could not load assigned leads</option>';
+  notice.textContent="Assignment Error: "+error.message;
   return;
  }
- const rows=data||[];
- if(!rows.length){
-  assignmentSelect.innerHTML='<option value="">No assigned leads found</option>';
+
+ if(!assignments||!assignments.length){
+  assignmentSelect.innerHTML=
+   '<option value="">No assigned leads found</option>';
   return;
  }
- assignmentSelect.innerHTML='<option value="">Select a lead</option>'+rows.map(a=>{
-  const id=a.id;
-  const label=a.lead_name||a.lead_id||("Assignment "+id);
-  return `<option value="${esc(id)}">${esc(label)}</option>`;
+
+ const leadIds=[...new Set(assignments.map(a=>a.lead_id).filter(Boolean))];
+
+ const {data:leads,error:leadError}=await client
+  .from("leads")
+  .select("id,lead_name")
+  .in("id",leadIds);
+
+ if(leadError){
+  assignmentSelect.innerHTML=
+   '<option value="">Could not load lead names</option>';
+  notice.textContent="Lead Name Error: "+leadError.message;
+  return;
+ }
+
+ const leadMap={};
+
+ (leads||[]).forEach(lead=>{
+  leadMap[lead.id]=lead.lead_name;
+ });
+
+ assignmentMap={};
+
+ const options=assignments.map(a=>{
+
+  const leadName=leadMap[a.lead_id]||"Lead Name Not Available";
+
+  assignmentMap[a.id]=leadName;
+
+  return `
+   <option value="${esc(a.id)}">
+    ${esc(leadName)}
+   </option>
+  `;
+
  }).join("");
+
+ assignmentSelect.innerHTML=
+  '<option value="">Select Lead Name</option>'+options;
 }
 
 async function loadReports(){
+
  const box=document.getElementById("myReports");
- const {data,error}=await client.from("reports")
- .select("id,assignment_id,report,result,status,submitted_at")
- .eq("partner_user_id",user.id)
- .order("submitted_at",{ascending:false});
 
- if(error){box.textContent="Error: "+error.message;return;}
- if(!data||!data.length){box.textContent="No reports submitted yet.";return;}
+ const {data,error}=await client
+  .from("reports")
+  .select("id,assignment_id,report,result,status,submitted_at")
+  .eq("partner_user_id",user.id)
+  .order("submitted_at",{ascending:false});
 
- box.innerHTML=data.map(r=>`
- <div class="item">
- <strong>Report</strong>
- <p>${esc(r.report)}</p>
- <p><strong>Result:</strong> ${esc(r.result||"-")}</p>
- <p><span class="status">${esc(r.status||"Submitted")}</span></p>
- <small>${esc(r.submitted_at?new Date(r.submitted_at).toLocaleString():"")}</small>
- </div>`).join("");
+ if(error){
+  box.textContent="Error: "+error.message;
+  return;
+ }
+
+ if(!data||!data.length){
+  box.textContent="No reports submitted yet.";
+  return;
+ }
+
+ box.innerHTML=data.map(r=>{
+
+  const leadName=
+   assignmentMap[r.assignment_id]||"Lead Name Not Available";
+
+  return `
+   <div class="item">
+
+    <div class="lead-name">
+     👤 ${esc(leadName)}
+    </div>
+
+    <p><strong>Work Report:</strong></p>
+    <p>${esc(r.report)}</p>
+
+    <p><strong>Result:</strong> ${esc(r.result||"-")}</p>
+
+    <p>
+     <span class="status">
+      ${esc(r.status||"Submitted")}
+     </span>
+    </p>
+
+    <small>
+     ${esc(r.submitted_at?
+      new Date(r.submitted_at).toLocaleString("en-IN"):"")}
+    </small>
+
+   </div>
+  `;
+
+ }).join("");
 }
 
-document.getElementById("reportForm").addEventListener("submit",async e=>{
+document.getElementById("reportForm")
+.addEventListener("submit",async e=>{
+
  e.preventDefault();
+
  const assignmentId=assignmentSelect.value;
  const report=document.getElementById("reportText").value.trim();
  const result=document.getElementById("resultText").value.trim();
  const btn=document.getElementById("submitBtn");
 
- if(!assignmentId||!report){notice.textContent="Please select a lead and enter report.";return;}
+ if(!assignmentId||!report){
+  notice.textContent="Please select a lead and enter report.";
+  return;
+ }
 
  btn.disabled=true;
- notice.textContent="Submitting...";
+ btn.textContent="Submitting...";
+ notice.textContent="Submitting report...";
 
- const {error}=await client.from("reports").insert({
-  assignment_id:assignmentId,
-  partner_user_id:user.id,
-  report:report,
-  result:result,
-  status:"Submitted"
- });
+ try{
 
- btn.disabled=false;
- if(error){notice.textContent="Error: "+error.message;return;}
+  const {error}=await client.from("reports").insert({
+   assignment_id:assignmentId,
+   partner_user_id:user.id,
+   report:report,
+   result:result,
+   status:"Submitted"
+  });
 
- notice.textContent="Report submitted successfully!";
- e.target.reset();
- await loadReports();
+  if(error)throw error;
+
+  notice.style.color="green";
+  notice.textContent="✓ Report submitted successfully!";
+
+  e.target.reset();
+
+  await loadReports();
+
+ }catch(error){
+
+  notice.style.color="#c62828";
+  notice.textContent="Error: "+error.message;
+
+ }finally{
+
+  btn.disabled=false;
+  btn.textContent="Submit Report";
+
+ }
+
 });
 
-init().catch(e=>notice.textContent="Error: "+e.message);
+init().catch(e=>{
+ notice.textContent="Error: "+e.message;
+});
+
 </script>
+
 </body>
 </html>
