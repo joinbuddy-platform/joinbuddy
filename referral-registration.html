@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JoinBuddy Registration</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:linear-gradient(135deg,#eaf0ff,#f3eaff);
+ min-height:100vh;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ padding:20px;
+}
+.container{
+ width:100%;
+ max-width:440px;
+ background:white;
+ padding:28px;
+ border-radius:18px;
+ box-shadow:0 8px 30px #0002;
+}
+.logo{
+ text-align:center;
+ font-size:30px;
+ font-weight:bold;
+ color:#5145cd;
+}
+h2{text-align:center;color:#222}
+.subtitle{text-align:center;color:#666;font-size:14px}
+label{display:block;margin:15px 0 6px;font-weight:bold}
+input{
+ width:100%;
+ padding:13px;
+ border:1px solid #ccc;
+ border-radius:9px;
+ font-size:16px;
+}
+input[readonly]{background:#f1f2f8}
+button{
+ width:100%;
+ padding:14px;
+ margin-top:22px;
+ border:0;
+ border-radius:9px;
+ background:linear-gradient(90deg,#5145cd,#7952d8);
+ color:white;
+ font-size:17px;
+ font-weight:bold;
+ cursor:pointer;
+}
+button:disabled{opacity:.6}
+#message{
+ display:none;
+ text-align:center;
+ padding:20px 5px;
+}
+.success{color:#168447;font-size:24px;font-weight:bold}
+.small{font-size:14px;color:#666;line-height:1.6}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="logo">JoinBuddy</div>
+<h2>JoinBuddy Registration 🇮🇳</h2>
+<p class="subtitle">Work Together. Grow Together.</p>
+
+<form id="registrationForm">
+
+<label>नाम (Name)</label>
+<input type="text" id="name" required placeholder="अपना पूरा नाम लिखें">
+
+<label>उम्र (Age)</label>
+<input type="number" id="age" required min="18" max="100" placeholder="अपनी उम्र लिखें">
+
+<label>मोबाइल नंबर (Phone Number)</label>
+<input type="tel" id="phone" required maxlength="10" pattern="[0-9]{10}" placeholder="10 अंकों का मोबाइल नंबर">
+
+<label>Referral Partner ID</label>
+<input type="text" id="partnerId" readonly required>
+
+<label>Referral Partner Name</label>
+<input type="text" id="partnerName" readonly required>
+
+<button type="submit" id="registerBtn">Register Now</button>
+
+</form>
+
+<div id="message">
+ <div class="success">🎉 Congratulations!</div>
+ <h3>आपका Registration सफलतापूर्वक Submit हो गया है।</h3>
+ <p class="small">JoinBuddy में आपका स्वागत है। अब WhatsApp Community से जुड़ें।</p>
+ <p class="small">यहाँ अपना WhatsApp Community Invite Link डालें</p>
+ <button type="button" id="joinBtn">Join WhatsApp Community</button>
+</div>
+
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzZ6FxhGlEOBf0ilCmk0Fxw1YOVQEnyjxujCA6DbIu-OvqUjly0dVRsSrpe2k_SGyp9SQ/exec";
+
+// यहाँ बाद में अपना WhatsApp Community Invite Link डालें
+const COMMUNITY_LINK = "यहाँ अपना WhatsApp Community Invite Link डालें";
+
+const params = new URLSearchParams(window.location.search);
+
+document.getElementById("partnerId").value =
+ params.get("ref") || "";
+
+document.getElementById("partnerName").value =
+ params.get("partnerName") || "";
+
+document.getElementById("registrationForm")
+.addEventListener("submit", async function(e){
+
+ e.preventDefault();
+
+ const btn = document.getElementById("registerBtn");
+ const name = document.getElementById("name").value.trim();
+ const age = document.getElementById("age").value;
+ const phone = document.getElementById("phone").value.trim();
+ const partnerId = document.getElementById("partnerId").value;
+ const partnerName = document.getElementById("partnerName").value;
+
+ if(!partnerId || !partnerName){
+   alert("Invalid Referral Link. कृपया अपने Partner से सही लिंक लें।");
+   return;
+ }
+
+ if(!/^[0-9]{10}$/.test(phone)){
+   alert("कृपया सही 10 अंकों का मोबाइल नंबर डालें।");
+   return;
+ }
+
+ btn.disabled = true;
+ btn.innerText = "Please Wait...";
+
+ // क्लिक के समय नया Tab खोलने की कोशिश
+ const joinTab = window.open("about:blank", "_blank");
+
+ const formData = new URLSearchParams();
+ formData.append("name",name);
+ formData.append("age",age);
+ formData.append("phone",phone);
+ formData.append("partnerId",partnerId);
+ formData.append("partnerName",partnerName);
+
+ try{
+   await fetch(SCRIPT_URL,{
+     method:"POST",
+     mode:"no-cors",
+     body:formData
+   });
+
+   document.getElementById("registrationForm").style.display="none";
+   document.getElementById("message").style.display="block";
+
+   if(joinTab){
+     setTimeout(()=>{
+       joinTab.location.href = COMMUNITY_LINK;
+     },2500);
+   }
+
+ }catch(error){
+   if(joinTab) joinTab.close();
+   alert("Registration भेजने में समस्या आई। कृपया दोबारा कोशिश करें।");
+   btn.disabled=false;
+   btn.innerText="Register Now";
+ }
+});
+
+document.getElementById("joinBtn").addEventListener("click",function(){
+ if(COMMUNITY_LINK.startsWith("https://")){
+   window.open(COMMUNITY_LINK,"_blank");
+ }else{
+   alert("यहाँ अपना WhatsApp Community Invite Link डालें।");
+ }
+});
+</script>
+
+</body>
+</html>
