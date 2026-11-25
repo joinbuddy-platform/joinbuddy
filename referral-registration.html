@@ -10,13 +10,13 @@
 *{box-sizing:border-box}
 body{
  margin:0;
- font-family:Arial,sans-serif;
- background:linear-gradient(135deg,#eaf0ff,#f3eaff);
+ padding:20px;
  min-height:100vh;
  display:flex;
- justify-content:center;
  align-items:center;
- padding:20px;
+ justify-content:center;
+ font-family:Arial,sans-serif;
+ background:linear-gradient(135deg,#eaf0ff,#f3eaff);
 }
 .container{
  width:100%;
@@ -28,13 +28,13 @@ body{
 }
 .logo{
  text-align:center;
- font-size:30px;
+ font-size:32px;
  font-weight:bold;
  color:#5145cd;
 }
 h2{text-align:center;color:#222}
 .subtitle{text-align:center;color:#666;font-size:14px}
-label{display:block;margin:15px 0 6px;font-weight:bold}
+label{display:block;margin:16px 0 7px;font-weight:bold}
 input{
  width:100%;
  padding:13px;
@@ -56,13 +56,10 @@ button{
  cursor:pointer;
 }
 button:disabled{opacity:.6}
-#message{
- display:none;
- text-align:center;
- padding:20px 5px;
-}
-.success{color:#168447;font-size:24px;font-weight:bold}
-.small{font-size:14px;color:#666;line-height:1.6}
+#message{display:none;text-align:center;padding:20px 5px}
+.success{color:#168447;font-size:25px;font-weight:bold}
+.small{font-size:14px;color:#666;line-height:1.7}
+.footer{text-align:center;color:#888;font-size:12px;margin-top:20px}
 </style>
 </head>
 
@@ -82,7 +79,9 @@ button:disabled{opacity:.6}
 <input type="number" id="age" required min="18" max="100" placeholder="अपनी उम्र लिखें">
 
 <label>मोबाइल नंबर (Phone Number)</label>
-<input type="tel" id="phone" required maxlength="10" pattern="[0-9]{10}" placeholder="10 अंकों का मोबाइल नंबर">
+<input type="tel" id="phone" required maxlength="10"
+ pattern="[0-9]{10}" inputmode="numeric"
+ placeholder="10 अंकों का मोबाइल नंबर">
 
 <label>Referral Partner ID</label>
 <input type="text" id="partnerId" readonly required>
@@ -91,15 +90,24 @@ button:disabled{opacity:.6}
 <input type="text" id="partnerName" readonly required>
 
 <button type="submit" id="registerBtn">Register Now</button>
-
 </form>
 
 <div id="message">
  <div class="success">🎉 Congratulations!</div>
- <h3>आपका Registration सफलतापूर्वक Submit हो गया है।</h3>
- <p class="small">JoinBuddy में आपका स्वागत है। अब WhatsApp Community से जुड़ें।</p>
- <p class="small">यहाँ अपना WhatsApp Community Invite Link डालें</p>
- <button type="button" id="joinBtn">Join WhatsApp Community</button>
+ <h3>आपका Registration सफलतापूर्वक पूरा हो गया है।</h3>
+ <p class="small">
+ JoinBuddy में आपका स्वागत है। अब WhatsApp Community से जुड़ें।
+ </p>
+ <p class="small" id="communityInfo">
+ WhatsApp Community Link अभी जोड़ा नहीं गया है।
+ </p>
+ <button type="button" id="joinBtn">
+ Join WhatsApp Community
+ </button>
+</div>
+
+<div class="footer">
+JoinBuddy – Work Together. Grow Together.
 </div>
 
 </div>
@@ -107,7 +115,7 @@ button:disabled{opacity:.6}
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzZ6FxhGlEOBf0ilCmk0Fxw1YOVQEnyjxujCA6DbIu-OvqUjly0dVRsSrpe2k_SGyp9SQ/exec";
 
-// यहाँ बाद में अपना WhatsApp Community Invite Link डालें
+// बाद में यहाँ अपना WhatsApp Community Invite Link डालें
 const COMMUNITY_LINK = "यहाँ अपना WhatsApp Community Invite Link डालें";
 
 const params = new URLSearchParams(window.location.search);
@@ -118,20 +126,26 @@ document.getElementById("partnerId").value =
 document.getElementById("partnerName").value =
  params.get("partnerName") || "";
 
+function communityAvailable(){
+ return COMMUNITY_LINK.startsWith("https://") &&
+        COMMUNITY_LINK !== "https://";
+}
+
 document.getElementById("registrationForm")
-.addEventListener("submit", async function(e){
+.addEventListener("submit", function(e){
 
  e.preventDefault();
 
  const btn = document.getElementById("registerBtn");
+
  const name = document.getElementById("name").value.trim();
  const age = document.getElementById("age").value;
  const phone = document.getElementById("phone").value.trim();
- const partnerId = document.getElementById("partnerId").value;
- const partnerName = document.getElementById("partnerName").value;
+ const partnerId = document.getElementById("partnerId").value.trim();
+ const partnerName = document.getElementById("partnerName").value.trim();
 
  if(!partnerId || !partnerName){
-   alert("Invalid Referral Link. कृपया अपने Partner से सही लिंक लें।");
+   alert("Invalid Referral Link. कृपया सही Referral Link खोलें।");
    return;
  }
 
@@ -141,44 +155,94 @@ document.getElementById("registrationForm")
  }
 
  btn.disabled = true;
- btn.innerText = "Please Wait...";
+ btn.innerText = "Registration हो रहा है...";
 
- // क्लिक के समय नया Tab खोलने की कोशिश
- const joinTab = window.open("about:blank", "_blank");
+ let joinTab = null;
 
- const formData = new URLSearchParams();
- formData.append("name",name);
- formData.append("age",age);
- formData.append("phone",phone);
- formData.append("partnerId",partnerId);
- formData.append("partnerName",partnerName);
+ if(communityAvailable()){
+   joinTab = window.open("about:blank","_blank");
+ }
 
- try{
-   await fetch(SCRIPT_URL,{
-     method:"POST",
-     mode:"no-cors",
-     body:formData
-   });
+ const callbackName =
+   "joinBuddyCallback_" + Date.now();
 
-   document.getElementById("registrationForm").style.display="none";
-   document.getElementById("message").style.display="block";
+ const script = document.createElement("script");
+ let completed = false;
 
-   if(joinTab){
-     setTimeout(()=>{
-       joinTab.location.href = COMMUNITY_LINK;
-     },2500);
+ function finish(result){
+   if(completed) return;
+   completed = true;
+
+   clearTimeout(timer);
+   delete window[callbackName];
+   script.remove();
+
+   if(!result || !result.success){
+     if(joinTab) joinTab.close();
+
+     alert(result && result.message
+       ? result.message
+       : "Registration सफल नहीं हुआ। कृपया दोबारा कोशिश करें।");
+
+     btn.disabled = false;
+     btn.innerText = "Register Now";
+     return;
    }
 
- }catch(error){
-   if(joinTab) joinTab.close();
-   alert("Registration भेजने में समस्या आई। कृपया दोबारा कोशिश करें।");
-   btn.disabled=false;
-   btn.innerText="Register Now";
+   document.getElementById("registrationForm").style.display = "none";
+   document.getElementById("message").style.display = "block";
+
+   if(communityAvailable()){
+     document.getElementById("communityInfo").innerText =
+       "आपको WhatsApp Community पर भेजा जा रहा है...";
+
+     setTimeout(function(){
+       if(joinTab){
+         joinTab.location.href = COMMUNITY_LINK;
+       }else{
+         document.getElementById("communityInfo").innerText =
+           "नीचे दिए गए बटन से Community Join करें।";
+       }
+     },2500);
+
+   }else{
+     document.getElementById("communityInfo").innerText =
+       "यहाँ अपना WhatsApp Community Invite Link डालें। Link जुड़ने के बाद आप Community Join कर सकेंगे।";
+   }
  }
+
+ window[callbackName] = finish;
+
+ const query = new URLSearchParams({
+   callback: callbackName,
+   name: name,
+   age: age,
+   phone: phone,
+   partnerId: partnerId,
+   partnerName: partnerName
+ });
+
+ script.src = SCRIPT_URL + "?" + query.toString();
+
+ script.onerror = function(){
+   finish({
+     success:false,
+     message:"Server से संपर्क नहीं हो पाया। कृपया दोबारा कोशिश करें।"
+   });
+ };
+
+ const timer = setTimeout(function(){
+   finish({
+     success:false,
+     message:"Server का जवाब नहीं मिला। कृपया कुछ देर बाद कोशिश करें।"
+   });
+ },20000);
+
+ document.body.appendChild(script);
 });
 
 document.getElementById("joinBtn").addEventListener("click",function(){
- if(COMMUNITY_LINK.startsWith("https://")){
+ if(communityAvailable()){
    window.open(COMMUNITY_LINK,"_blank");
  }else{
    alert("यहाँ अपना WhatsApp Community Invite Link डालें।");
