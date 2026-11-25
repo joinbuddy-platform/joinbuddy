@@ -4,108 +4,385 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JoinBuddy Partner Management</title>
+<title>JoinBuddy - Partner Management</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#f3f5fb;color:#1e293b}
-header{padding:22px;background:linear-gradient(110deg,#172554,#5632a8);color:white}
-.container{max-width:1100px;margin:auto;padding:18px}
-.card{background:white;padding:20px;margin:15px 0;border-radius:15px;box-shadow:0 4px 18px #1725540b}
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-button{border:0;border-radius:8px;padding:10px 14px;color:white;cursor:pointer}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#f3f5fb;
+ color:#1e293b;
+}
+header{
+ background:linear-gradient(120deg,#172554,#5632a8,#7138c8);
+ color:white;
+ padding:22px 18px;
+}
+.header-inner{
+ max-width:1150px;
+ margin:auto;
+}
+header h1{margin:0;font-size:27px}
+header p{margin:8px 0 0;color:#ddd6fe}
+.container{max-width:1150px;margin:auto;padding:20px}
+.back{
+ display:inline-flex;
+ text-decoration:none;
+ background:#172554;
+ color:white;
+ padding:11px 16px;
+ border-radius:9px;
+ margin-bottom:16px;
+ font-weight:bold;
+}
+.back:hover{background:#43318b}
+.card{
+ background:white;
+ padding:20px;
+ border-radius:16px;
+ box-shadow:0 5px 22px rgba(30,41,59,.06);
+ margin-bottom:18px;
+}
+.stats{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:14px;
+ margin-bottom:18px;
+}
+.stat{
+ background:white;
+ border-radius:15px;
+ padding:18px;
+ box-shadow:0 4px 18px #1725540b;
+ border-left:4px solid #6335bd;
+}
+.stat small{color:#64748b;font-weight:bold}
+.stat strong{
+ display:block;
+ font-size:29px;
+ margin-top:9px;
+ color:#43318b;
+}
+.stat.active-stat{border-color:#059669}
+.stat.active-stat strong{color:#059669}
+.stat.blocked-stat{border-color:#dc2626}
+.stat.blocked-stat strong{color:#dc2626}
+.stat.pending-stat{border-color:#d97706}
+.stat.pending-stat strong{color:#d97706}
+.top{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:12px;
+ flex-wrap:wrap;
+}
+h2{margin:0 0 7px;font-size:21px}
+.subtitle{color:#64748b;margin:0}
+button{
+ border:0;
+ border-radius:9px;
+ padding:10px 14px;
+ cursor:pointer;
+ color:white;
+ font-weight:bold;
+ font-size:13px;
+}
+button:disabled{opacity:.55;cursor:not-allowed}
 .refresh{background:#6335bd}
 .activate{background:#059669}
 .block{background:#dc2626}
-.count{font-size:30px;font-weight:bold;color:#6335bd}
+.details{background:#2563eb}
+.search-area{
+ display:flex;
+ gap:10px;
+ flex-wrap:wrap;
+ margin:20px 0;
+}
+.search-area input,.search-area select{
+ flex:1;
+ min-width:180px;
+ padding:12px;
+ border:1px solid #dbe1ef;
+ border-radius:9px;
+ outline:none;
+ background:white;
+ font-size:14px;
+}
+.search-area input:focus,.search-area select:focus{
+ border-color:#6335bd;
+}
 .table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:650px}
-th,td{text-align:left;padding:13px;border-bottom:1px solid #e5e7eb;font-size:14px}
-th{background:#eef0ff;color:#43318b}
-.status{padding:6px 10px;border-radius:20px;font-size:12px;font-weight:bold}
-.active{background:#dcfce7;color:#15803d}
-.blocked{background:#fee2e2;color:#b91c1c}
-.pending{background:#fef3c7;color:#92400e}
-.message{color:#64748b;overflow-wrap:anywhere}
-.back{display:block;margin:20px auto;background:#172554}
-@media(max-width:600px){.container{padding:12px}.card{padding:14px}header h1{font-size:23px}}
+table{
+ width:100%;
+ border-collapse:collapse;
+ min-width:680px;
+}
+th,td{
+ text-align:left;
+ padding:14px 12px;
+ border-bottom:1px solid #e9edf5;
+ font-size:14px;
+}
+th{
+ background:#f1efff;
+ color:#43318b;
+}
+tr:hover td{background:#fafaff}
+.status{
+ display:inline-block;
+ padding:6px 10px;
+ border-radius:20px;
+ font-size:12px;
+ font-weight:bold;
+}
+.active-status{background:#dcfce7;color:#15803d}
+.blocked-status{background:#fee2e2;color:#b91c1c}
+.pending-status{background:#fef3c7;color:#92400e}
+.action-buttons{display:flex;gap:7px;flex-wrap:wrap}
+.message{
+ color:#64748b;
+ font-size:14px;
+ margin:14px 0;
+ overflow-wrap:anywhere;
+}
+.empty{
+ text-align:center;
+ padding:25px;
+ color:#64748b;
+}
+.modal{
+ display:none;
+ position:fixed;
+ inset:0;
+ z-index:1000;
+ background:rgba(15,23,42,.65);
+ align-items:center;
+ justify-content:center;
+ padding:16px;
+}
+.modal.show{display:flex}
+.modal-box{
+ background:white;
+ width:100%;
+ max-width:420px;
+ border-radius:17px;
+ padding:22px;
+ box-shadow:0 15px 50px #0003;
+ animation:appear .2s ease;
+}
+@keyframes appear{
+ from{transform:translateY(12px);opacity:0}
+ to{transform:translateY(0);opacity:1}
+}
+.modal-box h2{color:#43318b;margin-bottom:18px}
+.detail-row{
+ padding:12px 0;
+ border-bottom:1px solid #e5e7eb;
+ font-size:14px;
+ overflow-wrap:anywhere;
+}
+.detail-row span{color:#64748b;display:block;margin-bottom:5px}
+.close{
+ background:#172554;
+ width:100%;
+ margin-top:18px;
+}
+@media(max-width:800px){
+ .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+ .container{padding:12px}
+ .card{padding:15px}
+ .stats{gap:9px}
+ .stat{padding:13px}
+ .stat strong{font-size:24px}
+ header h1{font-size:23px}
+ .top{align-items:flex-start}
+}
 </style>
 </head>
+
 <body>
+
 <header>
-<h1>JoinBuddy Admin</h1>
-<p>Partner Management</p>
+ <div class="header-inner">
+  <h1>JoinBuddy Admin</h1>
+  <p>Partner Management Portal</p>
+ </div>
 </header>
 
 <div class="container">
+
+<a class="back" href="admin-dashboard.html">
+ ← Back to Dashboard
+</a>
+
+<div class="stats">
+ <div class="stat">
+  <small>Total Partners</small>
+  <strong id="totalPartners">0</strong>
+ </div>
+ <div class="stat active-stat">
+  <small>Active Partners</small>
+  <strong id="activePartners">0</strong>
+ </div>
+ <div class="stat blocked-stat">
+  <small>Blocked Partners</small>
+  <strong id="blockedPartners">0</strong>
+ </div>
+ <div class="stat pending-stat">
+  <small>Pending Partners</small>
+  <strong id="pendingPartners">0</strong>
+ </div>
+</div>
+
 <div class="card">
-<div class="top">
-<div>
-<h2>Partner Management</h2>
-<p>Manage Active and Blocked Partners</p>
+
+ <div class="top">
+  <div>
+   <h2>Partner Management</h2>
+   <p class="subtitle">View, search and manage your partners</p>
+  </div>
+  <button class="refresh" id="refreshButton">↻ Refresh</button>
+ </div>
+
+ <div class="search-area">
+  <input
+   type="search"
+   id="searchInput"
+   placeholder="Search Partner ID or Name..."
+  >
+
+  <select id="statusFilter">
+   <option value="all">All Partners</option>
+   <option value="approved">Active Partners</option>
+   <option value="blocked">Blocked Partners</option>
+   <option value="pending">Pending Partners</option>
+  </select>
+ </div>
+
+ <p class="message" id="message">Loading Partners...</p>
+
+ <div class="table-wrap">
+  <table>
+   <thead>
+    <tr>
+     <th>Partner ID</th>
+     <th>Partner Name</th>
+     <th>Status</th>
+     <th>Actions</th>
+    </tr>
+   </thead>
+   <tbody id="partnerTable"></tbody>
+  </table>
+ </div>
+
+ <div class="empty" id="emptyMessage" style="display:none">
+  No matching partners found.
+ </div>
+
 </div>
-<button class="refresh" id="refreshButton">Refresh</button>
 </div>
 
-<p>Total Partners</p>
-<div class="count" id="totalPartners">0</div>
-<p class="message" id="message">Loading Partners...</p>
-
-<div class="table-wrap">
-<table>
-<thead>
-<tr>
-<th>Partner ID</th>
-<th>Partner Name</th>
-<th>Status</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody id="partnerTable"></tbody>
-</table>
-</div>
-</div>
-
-<button class="back" onclick="location.href='admin-panel.html'">
-Back to Admin Dashboard
-</button>
+<!-- Partner Details Modal -->
+<div class="modal" id="detailsModal">
+ <div class="modal-box">
+  <h2>Partner Details</h2>
+  <div class="detail-row">
+   <span>Partner ID</span>
+   <strong id="detailId">-</strong>
+  </div>
+  <div class="detail-row">
+   <span>Partner Name</span>
+   <strong id="detailName">-</strong>
+  </div>
+  <div class="detail-row">
+   <span>Partner Status</span>
+   <strong id="detailStatus">-</strong>
+  </div>
+  <div class="detail-row">
+   <span>Partner Record ID</span>
+   <strong id="detailRecordId">-</strong>
+  </div>
+  <button class="close" id="closeModal">Close</button>
+ </div>
 </div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+
 <script>
 const client=window.supabaseClient;
+
 const message=document.getElementById("message");
+const table=document.getElementById("partnerTable");
+const searchInput=document.getElementById("searchInput");
+const statusFilter=document.getElementById("statusFilter");
+
+let allPartners=[];
 
 async function checkAdmin(){
- if(!client) throw new Error("Supabase connection failed.");
+
+ if(!client){
+  throw new Error("Supabase connection failed.");
+ }
 
  const {data:{user},error}=await client.auth.getUser();
+
  if(error||!user){
-  location.href="admin-panel.html";
+  location.href="admin-dashboard.html";
   return false;
  }
 
  const {data:profile,error:profileError}=await client
- .from("partner_profiles")
- .select("role,status")
- .eq("id",user.id).single();
+  .from("partner_profiles")
+  .select("role,status")
+  .eq("id",user.id)
+  .single();
 
- if(profileError||!profile||profile.role!=="admin"||profile.status!=="approved"){
+ if(
+  profileError||
+  !profile||
+  profile.role!=="admin"||
+  profile.status!=="approved"
+ ){
   await client.auth.signOut();
-  location.href="admin-panel.html";
+  location.href="admin-dashboard.html";
   return false;
  }
+
  return true;
 }
 
+function getStatus(partner){
+ return String(partner.status||"pending").toLowerCase();
+}
+
+function updateStats(){
+
+ document.getElementById("totalPartners").textContent=allPartners.length;
+
+ document.getElementById("activePartners").textContent=
+  allPartners.filter(p=>getStatus(p)==="approved").length;
+
+ document.getElementById("blockedPartners").textContent=
+  allPartners.filter(p=>getStatus(p)==="blocked").length;
+
+ document.getElementById("pendingPartners").textContent=
+  allPartners.filter(p=>getStatus(p)!=="approved"&&getStatus(p)!=="blocked").length;
+}
+
 async function loadPartners(){
+
  const button=document.getElementById("refreshButton");
- const table=document.getElementById("partnerTable");
  button.disabled=true;
  message.textContent="Loading Partners...";
  table.innerHTML="";
+ document.getElementById("emptyMessage").style.display="none";
 
  try{
+
   if(!await checkAdmin()) return;
 
   const {data,error}=await client
@@ -116,73 +393,142 @@ async function loadPartners(){
 
   if(error) throw error;
 
-  document.getElementById("totalPartners").textContent=data.length;
+  allPartners=data||[];
 
-  if(!data.length){
-   message.textContent="No Partners Found.";
-   return;
-  }
+  updateStats();
+  renderPartners();
 
-  data.forEach(partner=>{
-   const row=document.createElement("tr");
-
-   const id=document.createElement("td");
-   id.textContent=partner.partner_id||"-";
-
-   const name=document.createElement("td");
-   name.textContent=partner.full_name||"-";
-
-   const statusCell=document.createElement("td");
-   const badge=document.createElement("span");
-   const status=String(partner.status||"pending").toLowerCase();
-
-   badge.className="status "+(
-    status==="approved"?"active":
-    status==="blocked"?"blocked":"pending"
-   );
-
-   badge.textContent=
-    status==="approved"?"Active":
-    status==="blocked"?"Blocked":
-    partner.status||"Pending";
-
-   statusCell.appendChild(badge);
-
-   const actionCell=document.createElement("td");
-   const action=document.createElement("button");
-
-   if(status==="approved"){
-    action.textContent="Block Partner";
-    action.className="block";
-    action.onclick=()=>updateStatus(partner.id,"blocked");
-   }else{
-    action.textContent="Activate Partner";
-    action.className="activate";
-    action.onclick=()=>updateStatus(partner.id,"approved");
-   }
-
-   actionCell.appendChild(action);
-   row.append(id,name,statusCell,actionCell);
-   table.appendChild(row);
-  });
-
-  message.textContent="Partners Successfully Loaded.";
+  message.textContent="Partners loaded successfully.";
 
  }catch(error){
+
   message.textContent="Error: "+error.message;
+
  }finally{
+
   button.disabled=false;
  }
 }
 
+function renderPartners(){
+
+ table.innerHTML="";
+
+ const search=searchInput.value.trim().toLowerCase();
+ const filter=statusFilter.value;
+
+ const filtered=allPartners.filter(partner=>{
+
+  const status=getStatus(partner);
+
+  const matchesSearch=
+   String(partner.partner_id||"").toLowerCase().includes(search)||
+   String(partner.full_name||"").toLowerCase().includes(search);
+
+  const matchesStatus=
+   filter==="all"||
+   (filter==="pending"&&status!=="approved"&&status!=="blocked")||
+   status===filter;
+
+  return matchesSearch&&matchesStatus;
+ });
+
+ if(!filtered.length){
+  document.getElementById("emptyMessage").style.display="block";
+  return;
+ }
+
+ document.getElementById("emptyMessage").style.display="none";
+
+ filtered.forEach(partner=>{
+
+  const status=getStatus(partner);
+
+  const row=document.createElement("tr");
+
+  const id=document.createElement("td");
+  id.textContent=partner.partner_id||"-";
+
+  const name=document.createElement("td");
+  name.textContent=partner.full_name||"-";
+
+  const statusCell=document.createElement("td");
+  const badge=document.createElement("span");
+
+  badge.className="status "+
+   (status==="approved"?"active-status":
+    status==="blocked"?"blocked-status":"pending-status");
+
+  badge.textContent=
+   status==="approved"?"Active":
+   status==="blocked"?"Blocked":
+   "Pending";
+
+  statusCell.appendChild(badge);
+
+  const actionCell=document.createElement("td");
+  const actions=document.createElement("div");
+  actions.className="action-buttons";
+
+  const viewButton=document.createElement("button");
+  viewButton.textContent="View";
+  viewButton.className="details";
+  viewButton.onclick=()=>showDetails(partner);
+
+  const actionButton=document.createElement("button");
+
+  if(status==="approved"){
+   actionButton.textContent="Block";
+   actionButton.className="block";
+   actionButton.onclick=()=>updateStatus(partner.id,"blocked");
+  }else{
+   actionButton.textContent="Activate";
+   actionButton.className="activate";
+   actionButton.onclick=()=>updateStatus(partner.id,"approved");
+  }
+
+  actions.append(viewButton,actionButton);
+  actionCell.appendChild(actions);
+
+  row.append(id,name,statusCell,actionCell);
+  table.appendChild(row);
+ });
+}
+
+function showDetails(partner){
+
+ document.getElementById("detailId").textContent=
+  partner.partner_id||"-";
+
+ document.getElementById("detailName").textContent=
+  partner.full_name||"-";
+
+ document.getElementById("detailStatus").textContent=
+  getStatus(partner)==="approved"?"Active":
+  getStatus(partner)==="blocked"?"Blocked":"Pending";
+
+ document.getElementById("detailRecordId").textContent=
+  partner.id||"-";
+
+ document.getElementById("detailsModal").classList.add("show");
+}
+
+function closeDetails(){
+ document.getElementById("detailsModal").classList.remove("show");
+}
+
 async function updateStatus(id,newStatus){
+
  const action=newStatus==="blocked"?"Block":"Activate";
 
- if(!confirm("Are you sure you want to "+action+" this Partner?")) return;
+ if(!confirm("Are you sure you want to "+action+" this Partner?")){
+  return;
+ }
 
  message.textContent="Updating Partner Status...";
 
  try{
+
   if(!await checkAdmin()) return;
 
   const {data,error}=await client
@@ -193,20 +539,37 @@ async function updateStatus(id,newStatus){
    .select("id");
 
   if(error) throw error;
+
   if(!data||data.length===0){
    throw new Error("Update not allowed. Check Supabase Admin update policy.");
   }
 
   message.textContent="Partner status updated successfully.";
+
   await loadPartners();
 
  }catch(error){
+
   message.textContent="Update Error: "+error.message;
  }
 }
 
-document.getElementById("refreshButton").addEventListener("click",loadPartners);
+document.getElementById("refreshButton")
+ .addEventListener("click",loadPartners);
+
+searchInput.addEventListener("input",renderPartners);
+statusFilter.addEventListener("change",renderPartners);
+
+document.getElementById("closeModal")
+ .addEventListener("click",closeDetails);
+
+document.getElementById("detailsModal")
+ .addEventListener("click",function(event){
+  if(event.target===this) closeDetails();
+ });
+
 loadPartners();
 </script>
+
 </body>
 </html>
