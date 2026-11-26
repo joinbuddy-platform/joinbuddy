@@ -1,87 +1,272 @@
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JoinBuddy Registration</title>
+<title>JoinBuddy | Registration</title>
 
 <style>
 *{box-sizing:border-box}
+
 body{
  margin:0;
- padding:20px;
+ padding:22px 16px;
  min-height:100vh;
  display:flex;
  align-items:center;
  justify-content:center;
- font-family:Arial,sans-serif;
- background:linear-gradient(135deg,#eaf0ff,#f3eaff);
+ font-family:'Segoe UI',Arial,sans-serif;
+ background:linear-gradient(135deg,#080d2c,#25206b,#5526a5,#172b70);
+ background-size:300% 300%;
+ animation:bgMove 12s ease infinite;
+ overflow-x:hidden;
+ position:relative;
 }
+
+@keyframes bgMove{
+ 0%{background-position:0% 50%}
+ 50%{background-position:100% 50%}
+ 100%{background-position:0% 50%}
+}
+
+.orb{
+ position:fixed;
+ border-radius:50%;
+ filter:blur(2px);
+ opacity:.22;
+ pointer-events:none;
+ animation:float 9s ease-in-out infinite alternate;
+}
+.orb.one{
+ width:230px;height:230px;
+ background:#9b7bff;
+ top:5%;left:-80px;
+}
+.orb.two{
+ width:280px;height:280px;
+ background:#00d9ff;
+ bottom:0;right:-110px;
+ animation-delay:2s;
+}
+.orb.three{
+ width:110px;height:110px;
+ background:#ff83dc;
+ top:55%;left:8%;
+ animation-delay:4s;
+}
+
+@keyframes float{
+ from{transform:translateY(0) scale(1)}
+ to{transform:translateY(-45px) scale(1.12)}
+}
+
 .container{
+ position:relative;
+ z-index:2;
  width:100%;
- max-width:440px;
- background:white;
- padding:28px;
- border-radius:18px;
- box-shadow:0 8px 30px #0002;
+ max-width:450px;
+ padding:30px 26px;
+ border:1px solid #ffffff55;
+ border-radius:25px;
+ background:rgba(255,255,255,.96);
+ box-shadow:0 25px 70px #0005;
+ animation:cardEnter .8s cubic-bezier(.2,.8,.2,1);
 }
+
+@keyframes cardEnter{
+ from{opacity:0;transform:translateY(35px) scale(.96)}
+ to{opacity:1;transform:translateY(0) scale(1)}
+}
+
 .logo{
  text-align:center;
- font-size:32px;
- font-weight:bold;
- color:#5145cd;
+ font-size:35px;
+ font-weight:900;
+ letter-spacing:-1px;
+ background:linear-gradient(90deg,#5145cd,#9b46e8,#2869e8);
+ -webkit-background-clip:text;
+ background-clip:text;
+ color:transparent;
 }
-h2{text-align:center;color:#222}
-.subtitle{text-align:center;color:#666;font-size:14px}
-label{display:block;margin:16px 0 7px;font-weight:bold}
+
+.logo-icon{
+ display:block;
+ text-align:center;
+ font-size:34px;
+ margin-bottom:5px;
+}
+
+h2{
+ text-align:center;
+ color:#171b38;
+ font-size:23px;
+ margin:12px 0 5px;
+}
+
+.subtitle{
+ text-align:center;
+ color:#777b94;
+ font-size:13px;
+ margin-bottom:25px;
+}
+
+label{
+ display:block;
+ margin:17px 0 7px;
+ color:#343956;
+ font-size:13px;
+ font-weight:700;
+}
+
 input{
  width:100%;
- padding:13px;
- border:1px solid #ccc;
- border-radius:9px;
- font-size:16px;
+ padding:14px 15px;
+ border:1.5px solid #e1e3f0;
+ border-radius:12px;
+ font-size:15px;
+ color:#252943;
+ background:#fafaff;
+ outline:none;
+ transition:.3s ease;
 }
-input[readonly]{background:#f1f2f8}
+
+input:focus{
+ border-color:#7354e8;
+ background:#fff;
+ box-shadow:0 0 0 4px #7354e822;
+ transform:translateY(-2px);
+}
+
+input[readonly]{
+ background:#f0efff;
+ color:#5542bb;
+ font-weight:700;
+ border-color:#e2dcff;
+}
+
 button{
  width:100%;
- padding:14px;
- margin-top:22px;
+ padding:15px;
+ margin-top:25px;
  border:0;
- border-radius:9px;
- background:linear-gradient(90deg,#5145cd,#7952d8);
+ border-radius:13px;
+ background:linear-gradient(100deg,#5145cd,#8846e8,#4269e9);
+ background-size:200% 100%;
  color:white;
- font-size:17px;
- font-weight:bold;
+ font-size:16px;
+ font-weight:800;
+ letter-spacing:.3px;
  cursor:pointer;
+ box-shadow:0 8px 22px #6048d94d;
+ transition:.3s;
+ animation:buttonGlow 3s ease infinite;
 }
-button:disabled{opacity:.6}
-#message{display:none;text-align:center;padding:20px 5px}
-.success{color:#168447;font-size:25px;font-weight:bold}
-.small{font-size:14px;color:#666;line-height:1.7}
-.footer{text-align:center;color:#888;font-size:12px;margin-top:20px}
+
+@keyframes buttonGlow{
+ 0%,100%{background-position:0% 50%}
+ 50%{background-position:100% 50%}
+}
+
+button:active{
+ transform:scale(.97);
+}
+
+button:hover{
+ transform:translateY(-3px);
+ box-shadow:0 12px 28px #6048d966;
+}
+
+button:disabled{
+ opacity:.6;
+ cursor:not-allowed;
+ transform:none;
+}
+
+#message{
+ display:none;
+ text-align:center;
+ padding:25px 5px 5px;
+ animation:cardEnter .7s ease;
+}
+
+.success-icon{
+ font-size:65px;
+ animation:pop .7s ease;
+}
+
+@keyframes pop{
+ 0%{transform:scale(.3);opacity:0}
+ 70%{transform:scale(1.2)}
+ 100%{transform:scale(1);opacity:1}
+}
+
+.success{
+ color:#168b58;
+ font-size:27px;
+ font-weight:900;
+ margin:12px 0;
+}
+
+.success-text{
+ color:#424763;
+ line-height:1.7;
+ font-size:15px;
+}
+
+.small{
+ font-size:13px;
+ color:#777b94;
+ line-height:1.7;
+}
+
+.footer{
+ text-align:center;
+ color:#8589a1;
+ font-size:11px;
+ margin-top:25px;
+}
+
+.footer span{
+ color:#6049cb;
+ font-weight:800;
+}
+
+@media(max-width:380px){
+ .container{padding:25px 19px}
+ .logo{font-size:31px}
+ h2{font-size:20px}
+}
 </style>
 </head>
 
 <body>
+
+<div class="orb one"></div>
+<div class="orb two"></div>
+<div class="orb three"></div>
+
 <div class="container">
 
+<div class="logo-icon">🚀</div>
 <div class="logo">JoinBuddy</div>
+
 <h2>JoinBuddy Registration 🇮🇳</h2>
 <p class="subtitle">Work Together. Grow Together.</p>
 
 <form id="registrationForm">
 
-<label>नाम (Name)</label>
-<input type="text" id="name" required placeholder="अपना पूरा नाम लिखें">
+<label>नाम (Full Name)</label>
+<input type="text" id="name" required maxlength="100"
+placeholder="अपना पूरा नाम लिखें">
 
 <label>उम्र (Age)</label>
-<input type="number" id="age" required min="18" max="100" placeholder="अपनी उम्र लिखें">
+<input type="number" id="age" required min="18" max="100"
+placeholder="अपनी उम्र लिखें">
 
 <label>मोबाइल नंबर (Phone Number)</label>
 <input type="tel" id="phone" required maxlength="10"
- pattern="[0-9]{10}" inputmode="numeric"
- placeholder="10 अंकों का मोबाइल नंबर">
+pattern="[0-9]{10}" inputmode="numeric"
+placeholder="10 अंकों का मोबाइल नंबर">
 
 <label>Referral Partner ID</label>
 <input type="text" id="partnerId" readonly required>
@@ -89,31 +274,39 @@ button:disabled{opacity:.6}
 <label>Referral Partner Name</label>
 <input type="text" id="partnerName" readonly required>
 
-<button type="submit" id="registerBtn">Register Now</button>
+<button type="submit" id="registerBtn">
+🚀 Register Now
+</button>
+
 </form>
 
 <div id="message">
- <div class="success">🎉 Congratulations!</div>
+ <div class="success-icon">🎉</div>
+ <div class="success">Congratulations!</div>
+
  <h3>आपका Registration सफलतापूर्वक पूरा हो गया है।</h3>
- <p class="small">
+
+ <p class="success-text">
  JoinBuddy में आपका स्वागत है। अब WhatsApp Community से जुड़ें।
  </p>
+
  <p class="small" id="communityInfo">
  WhatsApp Community Link अभी जोड़ा नहीं गया है।
  </p>
+
  <button type="button" id="joinBtn">
- Join WhatsApp Community
+ 💬 Join WhatsApp Community
  </button>
 </div>
 
 <div class="footer">
-JoinBuddy – Work Together. Grow Together.
+JoinBuddy – <span>Work Together. Grow Together.</span>
 </div>
 
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzZ6FxhGlEOBf0ilCmk0Fxw1YOVQEnyjxujCA6DbIu-OvqUjly0dVRsSrpe2k_SGyp9SQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQHzStyjVV5RGy78kjyAx6wL3sRV5bENJzJAqLa8eCgcApiB9fiQd3lbvKZrz5ltkg/exec";
 
 // बाद में यहाँ अपना WhatsApp Community Invite Link डालें
 const COMMUNITY_LINK = "यहाँ अपना WhatsApp Community Invite Link डालें";
@@ -128,11 +321,11 @@ document.getElementById("partnerName").value =
 
 function communityAvailable(){
  return COMMUNITY_LINK.startsWith("https://") &&
-        COMMUNITY_LINK !== "https://";
+ !COMMUNITY_LINK.includes("यहाँ अपना");
 }
 
 document.getElementById("registrationForm")
-.addEventListener("submit", function(e){
+.addEventListener("submit",function(e){
 
  e.preventDefault();
 
@@ -145,13 +338,18 @@ document.getElementById("registrationForm")
  const partnerName = document.getElementById("partnerName").value.trim();
 
  if(!partnerId || !partnerName){
-   alert("Invalid Referral Link. कृपया सही Referral Link खोलें।");
-   return;
+  alert("Invalid Referral Link. कृपया सही Referral Link खोलें।");
+  return;
  }
 
  if(!/^[0-9]{10}$/.test(phone)){
-   alert("कृपया सही 10 अंकों का मोबाइल नंबर डालें।");
-   return;
+  alert("कृपया सही 10 अंकों का मोबाइल नंबर डालें।");
+  return;
+ }
+
+ if(!Number.isInteger(Number(age)) || Number(age)<18 || Number(age)>100){
+  alert("उम्र 18 से 100 के बीच होनी चाहिए।");
+  return;
  }
 
  btn.disabled = true;
@@ -160,82 +358,81 @@ document.getElementById("registrationForm")
  let joinTab = null;
 
  if(communityAvailable()){
-   joinTab = window.open("about:blank","_blank");
+  joinTab = window.open("about:blank","_blank");
  }
 
- const callbackName =
-   "joinBuddyCallback_" + Date.now();
-
+ const callbackName = "joinBuddyCallback_" + Date.now();
  const script = document.createElement("script");
  let completed = false;
+ let timer;
 
  function finish(result){
-   if(completed) return;
-   completed = true;
+  if(completed)return;
+  completed = true;
 
-   clearTimeout(timer);
-   delete window[callbackName];
-   script.remove();
+  clearTimeout(timer);
+  delete window[callbackName];
+  script.remove();
 
-   if(!result || !result.success){
-     if(joinTab) joinTab.close();
+  if(!result || !result.success){
+   if(joinTab)joinTab.close();
 
-     alert(result && result.message
-       ? result.message
-       : "Registration सफल नहीं हुआ। कृपया दोबारा कोशिश करें।");
+   alert(result && result.message
+    ? result.message
+    : "Registration सफल नहीं हुआ। कृपया दोबारा कोशिश करें।");
 
-     btn.disabled = false;
-     btn.innerText = "Register Now";
-     return;
-   }
+   btn.disabled = false;
+   btn.innerText = "🚀 Register Now";
+   return;
+  }
 
-   document.getElementById("registrationForm").style.display = "none";
-   document.getElementById("message").style.display = "block";
+  document.getElementById("registrationForm").style.display="none";
+  document.getElementById("message").style.display="block";
 
-   if(communityAvailable()){
+  if(communityAvailable()){
+   document.getElementById("communityInfo").innerText =
+    "आपको WhatsApp Community पर भेजा जा रहा है...";
+
+   setTimeout(function(){
+    if(joinTab){
+     joinTab.location.href = COMMUNITY_LINK;
+    }else{
      document.getElementById("communityInfo").innerText =
-       "आपको WhatsApp Community पर भेजा जा रहा है...";
+      "नीचे दिए गए बटन से Community Join करें।";
+    }
+   },2500);
 
-     setTimeout(function(){
-       if(joinTab){
-         joinTab.location.href = COMMUNITY_LINK;
-       }else{
-         document.getElementById("communityInfo").innerText =
-           "नीचे दिए गए बटन से Community Join करें।";
-       }
-     },2500);
-
-   }else{
-     document.getElementById("communityInfo").innerText =
-       "यहाँ अपना WhatsApp Community Invite Link डालें। Link जुड़ने के बाद आप Community Join कर सकेंगे।";
-   }
+  }else{
+   document.getElementById("communityInfo").innerText =
+    "WhatsApp Community Link अभी जोड़ा नहीं गया है। Link जुड़ने के बाद आप Community Join कर सकेंगे।";
+  }
  }
 
  window[callbackName] = finish;
 
  const query = new URLSearchParams({
-   callback: callbackName,
-   name: name,
-   age: age,
-   phone: phone,
-   partnerId: partnerId,
-   partnerName: partnerName
+  callback:callbackName,
+  name:name,
+  age:age,
+  phone:phone,
+  partnerId:partnerId,
+  partnerName:partnerName
  });
 
  script.src = SCRIPT_URL + "?" + query.toString();
 
  script.onerror = function(){
-   finish({
-     success:false,
-     message:"Server से संपर्क नहीं हो पाया। कृपया दोबारा कोशिश करें।"
-   });
+  finish({
+   success:false,
+   message:"Server से संपर्क नहीं हो पाया। कृपया दोबारा कोशिश करें।"
+  });
  };
 
- const timer = setTimeout(function(){
-   finish({
-     success:false,
-     message:"Server का जवाब नहीं मिला। कृपया कुछ देर बाद कोशिश करें।"
-   });
+ timer = setTimeout(function(){
+  finish({
+   success:false,
+   message:"Server का जवाब नहीं मिला। कृपया कुछ देर बाद कोशिश करें।"
+  });
  },20000);
 
  document.body.appendChild(script);
@@ -243,12 +440,13 @@ document.getElementById("registrationForm")
 
 document.getElementById("joinBtn").addEventListener("click",function(){
  if(communityAvailable()){
-   window.open(COMMUNITY_LINK,"_blank");
+  window.open(COMMUNITY_LINK,"_blank");
  }else{
-   alert("यहाँ अपना WhatsApp Community Invite Link डालें।");
+  alert("यहाँ अपना WhatsApp Community Invite Link डालें।");
  }
 });
 </script>
 
 </body>
 </html>
+
